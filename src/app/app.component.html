@@ -1,0 +1,723 @@
+<!-- side nav -->
+<div id="mySidenav" class="sidenav bgGrey style-1 boxShadow-1">
+  <!-- menu header -->
+  <div class="border-right" style="background-color: #093951">
+    <!-- <div class="row">
+      <a href="javascript:void(0)" class="closebtn" (click)="closeNav()">&times;</a>
+    </div> -->
+    <div class="row">
+      <div class="col-md-12 text-right">
+        <button mat-button class="noneOutline text-white" (click)="closeNav()">
+          X
+        </button>
+      </div>
+    </div>
+    <div class="row pt-2 pb-2">
+      <div class="col-md-12 text-center">
+        <img class="imgShadow" src="../assets/images/nha.png" width="40%" alt="" />
+      </div>
+    </div>
+  </div>
+  <!-- end menu header -->
+  <ul class="nav flex-column flex-nowrap overflow-hidden">
+    <li class="nav-item">
+      <a class="nav-link text-truncate" href="" routerLinkActive="home" routerLink="home" (click)="closeNav()"><span
+          class="d-none d-sm-inline">Home</span></a>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Admin' || userRole == 'Super User'">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="dashboard"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Dashboard</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Moveable Asset Admin' ||
+        userRole == 'Moveable Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="assetEntry"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Asset Entry & Tags</span></a>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Super User'">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="revaluation"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Revaluation Movable Asset</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Fixed Asset Admin' ||
+        userRole == 'Fixed Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="freeholdLand"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Freehold Land</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Fixed Asset Admin' ||
+        userRole == 'Fixed Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="nhaRoads"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Roads on Land</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Fixed Asset Admin' ||
+        userRole == 'Fixed Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="nhaBridges"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Bridges</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Fixed Asset Admin' ||
+        userRole == 'Fixed Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="nhaBuildings"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Buildings</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Data Entry' ||
+        userRole == 'Fixed Asset Admin' ||
+        userRole == 'Fixed Asset Data Entry' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="assetpurchase"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Asset Purchase</span></a>
+    </li>
+    <li class="nav-item" *ngIf="
+        userRole == 'Admin' ||
+        userRole == 'Moveable Asset Admin' ||
+        userRole == 'Super User'
+      ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="locComp"
+        (click)="closeNav()"><span class="d-none d-sm-inline">Location Status</span></a>
+    </li>
+    <li class="nav-item"
+      *ngIf=" userRole == 'Admin' || userRole == 'Moveable Asset Admin' || userRole == 'Super User' ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="disofasset" (click)="closeNav()">
+        <span class="d-none d-sm-inline">Disposal of Assets</span>
+      </a>
+    </li>
+    <li class="nav-item"
+      *ngIf=" userRole == 'Admin' || userRole == 'Moveable Asset Admin' || userRole == 'Super User' ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="writeOff" (click)="closeNav()">
+        <span class="d-none d-sm-inline">Write Off</span>
+      </a>
+    </li>
+    <li class="nav-item"
+      *ngIf=" userRole == 'Admin' || userRole == 'Moveable Asset Admin' || userRole == 'Super User' ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="transfer" (click)="closeNav()">
+        <span class="d-none d-sm-inline">Asset Transfer</span>
+      </a>
+    </li>
+    <li class="nav-item"
+      *ngIf=" userRole == 'Admin' || userRole == 'Moveable Asset Admin' || userRole == 'Super User' ">
+      <a class="nav-link text-truncate" href="" routerLinkActive="active" routerLink="assetCreate" (click)="closeNav()">
+        <span class="d-none d-sm-inline">Asset To Be Created</span>
+      </a>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Admin' || userRole == 'Super User'">
+      <a class="nav-link collapsed text-truncate" href="" data-toggle="collapse" data-target="#submenuReports"><span
+          class="d-none d-sm-inline">Reports</span></a>
+      <div class="collapse" id="submenuReports" aria-expanded="false">
+        <ul class="flex-column nav bgDarkBlue">
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/0" routerLinkActive="active"
+              (click)="closeNav()"><span>Movable Asset Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/1" routerLinkActive="active"
+              (click)="closeNav()"><span>Useable Consolidated Asset Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/2" routerLinkActive="active"
+              (click)="closeNav()"><span>Serviceable Consolidated Asset Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/3" routerLinkActive="active"
+              (click)="closeNav()"><span>Surplus Asset Consolidated Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/4" routerLinkActive="active"
+              (click)="closeNav()"><span>Condemned Consolidated Asset Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/5" routerLinkActive="active"
+              (click)="closeNav()"><span>Missing Consolidated Asset Register</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetRegisterRpt/6" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Return</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="landReport" routerLinkActive="active"
+              (click)="closeNav()"><span>Freehold Land Report</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="roadReport" routerLinkActive="active"
+              (click)="closeNav()"><span>Roads on Land Report</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="bridgeReport" routerLinkActive="active"
+              (click)="closeNav()"><span>Bridges Report</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="buildingReport" routerLinkActive="active"
+              (click)="closeNav()"><span>Building Report</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetCatSumRpt" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Category Summary</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetCatDetailRpt" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Category Detail</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="externalTransferRpt" routerLinkActive="active"
+              (click)="closeNav()"><span>External Transfer Reprot</span></a>
+          </li>
+          <!-- <li class="nav-item"><a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink='updationLogRpt'
+              routerLinkActive="active" (click)="closeNav()"><span>Updation Log</span></a></li> -->
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Admin' || userRole == 'Super User'">
+      <a class="nav-link collapsed text-truncate" href="" data-toggle="collapse"
+        data-target="#submenuAdminReports"><span class="d-none d-sm-inline">Admin Manual Reports</span></a>
+      <div class="collapse" id="submenuAdminReports" aria-expanded="false">
+        <ul class="flex-column nav bgDarkBlue">
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminFurniture" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-VII) - Furniture</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminOfficeEquip" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-VI) - Office Equipment</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminVehicle" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-V) - Vehicle</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminMachinery" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-IV) - Engineering Equipments /
+                Machinery</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminPlot" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-III) - Buildings & Plots for Building</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminLand" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register (Par-I) - Land</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminWOL" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register - Write Off Losses</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminOwnBuilding" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register - Own Building</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminRoad" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Register - Roads Asset</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="adminDisposal" routerLinkActive="active"
+              (click)="closeNav()"><span>Record of Disposal of Asset</span></a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Super User'">
+      <a class="nav-link collapsed text-truncate" href="" data-toggle="collapse" data-target="#submenuAdmin"><span
+          class="d-none d-sm-inline">Admin Panel</span></a>
+      <div class="collapse" id="submenuAdmin" aria-expanded="false">
+        <ul class="flex-column nav bgDarkBlue">
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="userRegisteration" routerLinkActive="active"
+              (click)="closeNav()"><span>User Registeration</span></a>
+          </li>
+        </ul>
+      </div>
+    </li>
+    <li class="nav-item" *ngIf="userRole == 'Admin' || userRole == 'Super User'">
+      <a class="nav-link collapsed text-truncate" href="" data-toggle="collapse" data-target="#submenuConfig"><span
+          class="d-none d-sm-inline">Configurations</span></a>
+      <div class="collapse" id="submenuConfig" aria-expanded="false">
+        <ul class="flex-column nav bgDarkBlue">
+          <li class="nav-item inline-block">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaLoc" routerLinkActive="active"
+              (click)="closeNav()"><span>Locations</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaSec" routerLinkActive="active"
+              (click)="closeNav()"><span>Section</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaOfficeType" routerLinkActive="active"
+              (click)="closeNav()"><span>Office Type</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="assetCat" routerLinkActive="active"
+              (click)="closeNav()"><span>Asset Category</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaPost" routerLinkActive="active"
+              (click)="closeNav()"><span>Custody</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaProject" routerLinkActive="active"
+              (click)="closeNav()"><span>Project</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="nhaProjectIPC" routerLinkActive="active"
+              (click)="closeNav()"><span>Project IPCs</span></a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link py-0 pl-5 pt-2 pb-2" href="" routerLink="createBuilding" routerLinkActive="active"
+              (click)="closeNav()"><span>Create Buildings</span></a>
+          </li>
+        </ul>
+      </div>
+    </li>
+  </ul>
+</div>
+<!-- end side nav -->
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<div class="container-fluid bg-white" *ngIf="!loadingBar">
+  <!-- header -->
+  <div id="main">
+    <div class="row" id="menuId">
+      <div class="col-md-4 pl-4">
+        <span style="font-size: 1.5em; cursor: pointer; font-family: 'Montserrat'" (click)="openNav()"
+          class="animate__animated animate__bounce">&#9776; NHA</span>
+      </div>
+      <div class="col-md-2 offset-md-6 pt-1 text-right">
+        <button mat-button class="noneOutline" style="font-family: 'Montserrat'; font-size: 1em !important"
+          [matMenuTriggerFor]="menu">
+          <!-- <span class="fa fa-user"></span>&nbsp;&nbsp;{{ userName }} -->
+          <span class="fa fa-user"></span>&nbsp;&nbsp;{{ userName }}
+        </button>
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item class="noneOutline" data-toggle="modal" data-target="#resetPasswordModal">
+            <span class="fa fa-lock"></span>&nbsp;Reset Password
+          </button>
+          <button mat-menu-item class="noneOutline" data-toggle="modal" data-target="#genPinCodeModal"
+            (click)="clearPin()">
+            <span class="fa fa-lock"></span>&nbsp;Generate Pin
+          </button>
+          <!-- <button mat-menu-item class="noneOutline" data-toggle="modal" data-target="#compLocationModal">
+          <span class="fa fa-check"></span>&nbsp;Complete Location
+        </button> -->
+          <button mat-menu-item class="noneOutline" data-toggle="modal" data-target="#qrScannerModal">
+            <span class="fa fa-qrcode"></span>&nbsp;QR Scanner
+          </button>
+          <button mat-menu-item class="noneOutline" (click)="Logout()">
+            <span class="fa fa-sign-out"></span>&nbsp;Log out
+          </button>
+        </mat-menu>
+      </div>
+      <!-- <div class="col-md-1">
+      <button mat-mini-fab color="warn" class="p-0 m-0 noneOutline fa fa-sign-out" (click)="Logout()"></button>
+    </div> -->
+    </div>
+    <!-- <div id="menuId" class="animate__animated animate__bounce"></div> -->
+    <router-outlet></router-outlet>
+    <app-customloader></app-customloader>
+  </div>
+
+  <!-- QR scanner Modal Window -->
+  <!-- The Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="qrScannerModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">QR Scanner</h3>
+          <button type="button" class="close" data-dismiss="modal">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-8">
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field color="warn" class="w-100">
+                    <mat-label>Enter Asset ID</mat-label>
+                    <input matInput [(ngModel)]="txtAssetID" (keydown)="getQrCodeData()" />
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Asset Tag :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblTag }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Account Category :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblAccCategory }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Asset Category :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblAssetCategory }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Custody In :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblPost }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Office Section :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblSection }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Asset Condition :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblCondition }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Asset Location :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblAssetLocation }}
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Description :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblAssetDescription }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Office Type :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblOfficeType }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Location :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblLocation }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Project :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblProject }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">IPC Ref. :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblIPCRef }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Serial No. :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblSerialNo }}
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-4">Other Identification :</div>
+                <div class="col-md-8 border-bottom">
+                  {{ lblOtherIdentification }}
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <div class="row">
+                <div class="col-md-12">
+                  <zxing-scanner (scanSuccess)="onCodeResult($event)"></zxing-scanner>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <section class="results" *ngIf="qrResultString">
+                    <div>
+                      <label [(ngModel)]="qrResultString"></label>
+                      <strong>{{ qrResultString }}</strong>
+                    </div>
+                    <!-- <button mat-icon-button (click)="clearResult()">&times;</button> -->
+                  </section>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">Created By:</div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12 border-bottom">
+                  {{ lblCreatedBy }}
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">Creation Date:</div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12 border-bottom">
+                  {{ lblCreationDate | date: "dd-MMM-yyyy" }}
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">Modified By:</div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12 border-bottom">
+                  {{ lblModifiedBy }}
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">Modification Date:</div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12 border-bottom">
+                  {{ lblModificationDate | date: "dd-MM-yyyy" }}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-md-4 pt-2">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset"
+                  (change)="onAssetFileSelected($event)" />
+                <label class="custom-file-label" for="customFile">Choose 1st Asset Image</label>
+              </div>
+            </div>
+            <div class="col-md-4 pt-2">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset2"
+                  (change)="onAssetFileSelected2($event)" />
+                <label class="custom-file-label" for="customFile">Choose 2nd Asset Image</label>
+              </div>
+            </div>
+            <div class="col-md-4 pt-2">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset"
+                  (change)="onAssetFileSelected3($event)" />
+                <label class="custom-file-label" for="customFile">Choose 3rd Asset Image</label>
+              </div>
+            </div>
+          </div>
+          <div class="row pt-2">
+            <div class="col-md-4 text-center">
+              <div class="text-center">
+                <img [src]="imageAssetUrl" class="rounded" width="115" height="115" id="myImg" />
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <div class="text-center">
+                <img [src]="imageAssetUrl2" class="rounded" width="115" height="115" id="myImg" />
+              </div>
+            </div>
+            <div class="col-md-4 text-center">
+              <div class="text-center">
+                <img [src]="imageAssetUrl3" class="rounded" width="115" height="115" id="myImg" />
+              </div>
+            </div>
+          </div>
+
+          <br />
+          <div class="row">
+            <div class="col-md-12">
+              <button mat-raised-button color="warn" (click)="updateAssetPic()">
+                Save Asset Images
+              </button>
+            </div>
+          </div>
+          <!-- table -->
+          <div class="table-responsive pt-2">
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th>#</th>
+                  <th>Location</th>
+                  <th>Office Type</th>
+                  <th>Section</th>
+                  <th>Created Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let item of qrLogList; let i = index">
+                  <td class="text-center">{{ i + 1 }}</td>
+                  <td>{{ item.subLocationDescription }}</td>
+                  <td>{{ item.officeTypeDescription }}</td>
+                  <td>{{ item.officeDescription }}</td>
+                  <td>{{ item.createdDateTime | date }}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reset Password Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="resetPasswordModal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">Reset Password</h3>
+          <button type="button" class="close" data-dismiss="modal" id="closeResetNav">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Old Password</mat-label>
+                <input type="password" matInput [(ngModel)]="txtOldPw" />
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>New Password</mat-label>
+                <input type="password" matInput [(ngModel)]="txtNewPw" />
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Confirm Password</mat-label>
+                <input type="password" matInput [(ngModel)]="txtConfirmPw" />
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row">
+            <div class="col-md-12">
+              <a class="btn-flip" data-back="Save" data-front="Save" (click)="resetPw()"></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Generate Pin Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="genPinCodeModal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">Generate Pin</h3>
+          <button type="button" class="close" data-dismiss="modal" id="closeResetNav">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Pin</mat-label>
+                <input type="password" matInput [(ngModel)]="txtPin" maxlength="4" />
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Confirm Pin</mat-label>
+                <input type="password" matInput [(ngModel)]="txtConfirmPin" maxlength="4" />
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row">
+            <div class="col-md-12">
+              <a class="btn-flip" data-back="Save" data-front="Save" (click)="genPin()"></a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

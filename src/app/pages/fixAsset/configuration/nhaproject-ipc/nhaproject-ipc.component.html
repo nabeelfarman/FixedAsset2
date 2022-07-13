@@ -1,0 +1,335 @@
+<div class="row">
+  <div class="col-md-12 text-center">
+    <h1>Asset Project IPC</h1>
+  </div>
+</div>
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<!-- container -->
+<div class="container-fluid boxShadow-1 bg-white" *ngIf="!loadingBar">
+  <div class="row">
+    <!-- entry form -->
+    <div class="col-md-4 pl-3 pr-0 border-right">
+      <div class="row bgGrey">
+        <div class="col-md-12 pt-4">
+          <h3 class='text-white pb-2'>{{heading}} Project IPC</h3>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class='w-100'>
+            <mat-label>Select Project</mat-label>
+            <mat-select [(ngModel)]="cmbProject" (ngModelChange)="filterTable(cmbProject)" [disabled]="disableProject">
+              <ngx-mat-select-search [(ngModel)]="searchProject" [placeholderLabel]="'Search...'"
+                [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+              <mat-option *ngFor="
+              let item of projectList | search
+              : 'projectName'
+              : searchProject" [value]="item.projectID">{{item.projectName}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- next row -->
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>Package No.</mat-label>
+            <input matInput placeholder="in roman e.g I, II, III, IV" [(ngModel)]="txtPkgNo">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>IPC No.</mat-label>
+            <input matInput type='text' currencyMask maxlength="2" [(ngModel)]="txtIPCNo"
+              (keypress)="validateFields(txtIPCNo)">
+          </mat-form-field>
+        </div>
+      </div>
+      <!-- next row -->
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>Description</mat-label>
+            <textarea matInput placeholder="" [(ngModel)]="txtIpcDesc"></textarea>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- next row -->
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" [(ngModel)]="imgFile" (change)="onFileSelected($event)">
+            <label class="custom-file-label" for="customFile">Choose IPC Scan Copy</label>
+          </div>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2 text-center">
+          <div class="text-center">
+            <!-- <img [src]="imageUrl" class="rounded" width="80" height="80" id="myImg" (click)="zoomImage()"> -->
+            <button class='noneOutline' mat-button
+              *ngIf="imageUrl!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileName==''"
+              (click)='openPDFFile()' color="primary">Open
+              uploaded File</button>
+            <button class='noneOutline' mat-button
+              *ngIf="imageUrl!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileName!=''"
+              color="primary">{{lblFileName}}</button>
+            <!-- <a href="" (click) = 'openPDFFile()'>{{imageUrl}}</a> -->
+          </div>
+        </div>
+      </div>
+      <!-- next row -->
+      <div class="footer w-100">
+        <div class="row border-top bgGrey pt-2 pb-2 pl-3">
+          <div class="col-md-12 inline-block">
+            <a class="btn-flip mr-3" data-back="Save" data-front="Save" (click)="save()"></a>
+            <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clearAll()"></a>
+          </div>
+        </div>
+      </div>
+
+      <!-- <div class="row pr-4 pl-1">
+        <div class="col-md-3 pt-2">
+          <button mat-button mat-raised-button color="primary" class='noneOutline w-100' (click)="save()">Save</button>
+        </div>
+        <div class="col-md-3 pt-2">
+          <button mat-button mat-raised-button color="warn" class='noneOutline w-100' (click)="clear()">Reset</button>
+        </div>
+      </div> -->
+    </div>
+    <!-- saved locations -->
+    <div class="col-md-8 bg-light">
+      <div class="row">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>search...</mat-label>
+            <mat-icon matPrefix class='fa fa-search'></mat-icon>
+            <input matInput [(ngModel)]="tblSearch">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="table-responsive border mb-2 table-wrapper mx-auto mb-2 style-1" style='height: 560px;'>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="sticky-top" scope='col'>#</th>
+              <th class="sticky-top" scope='col'>Project Short Name</th>
+              <th class="sticky-top" scope='col'>Package No.</th>
+              <th class="sticky-top" scope='col'>IPC No.</th>
+              <th class="sticky-top" scope='col'>IPC Description</th>
+              <th class="sticky-top text-center" scope='col'>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of ipcList | sort: 'ipcRefID : desc' | search:'projectShortName,projectPackage,ipcNo,ipcRefDescription':tblSearch let i=index">
+              <td class="text-center">{{i+1}}</td>
+              <td>{{item.projectShortName}}</td>
+              <td>{{item.projectPackage}}</td>
+              <td>{{item.ipcNo}}</td>
+              <td>{{item.ipcRefDescription}}</td>
+              <td class='inline-block text-center'>
+                <span class='fa fa-info-circle cursorPointer pr-3' (click)="getIPCDetail(item.ipcRefID)"></span>
+                <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="genPin(item,'edit')"></span>
+                <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="genPin(item,'delete')"></span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- End -->
+    </div>
+  </div>
+</div>
+
+<!-- ipc detail Modal -->
+<div class="modal animate__animated animate__bounceIn" id="ipcDetailModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">{{lblProjectName}} Detail</h3>
+        <button type="button" class="close" data-dismiss="modal" (click)="clearAll()">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="loader h-100" style="height: 100% !important;" *ngIf="modalLoadingBar">Loading...</div>
+
+        <div *ngIf="!modalLoadingBar">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Asset - Category</mat-label>
+                <mat-select [(ngModel)]="cmbAssetCat" (ngModelChange)="getAssetCatDescription(cmbAssetCat)">
+                  <mat-option>
+                    <ngx-mat-select-search [(ngModel)]="searchCategory" [placeholderLabel]="'Search...'"
+                      [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                  </mat-option>
+
+                  <mat-option *ngFor="
+                      let item of AssetCatList
+                        | search: 'assetCatDescription':searchCategory
+                    " [value]="item.assetCatID">
+                    {{ item.assetCatDescription }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row" *ngIf="lblAccCategory != ''">
+            <div class="col-md-12">
+              <div class="row">
+                <div class="col-md-5">
+                  <label class="align-self-center">Account Category:</label>
+                </div>
+                <div class="col-md-7 text-left">
+                  <label
+                    class="align-self-center text-primary font-weight-bold border-bottom">{{ lblAccCategory }}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Quantity</mat-label>
+                <input matInput [(ngModel)]="txtQty">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Description</mat-label>
+                <input matInput [(ngModel)]="txtDesc">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-3 pt-2">
+              <button mat-button mat-raised-button color="primary" class='noneOutline w-100'
+                (click)="saveDetail()">Save</button>
+            </div>
+            <div class="col-md-3 pt-2">
+              <button mat-button mat-raised-button color="warn" class='noneOutline w-100'
+                (click)="clearDetail()">Reset</button>
+            </div>
+          </div>
+          <div class="row">
+            <div class="col-md-12 pt-2">
+              <mat-form-field class="w-100">
+                <mat-label>search...</mat-label>
+                <mat-icon matPrefix class='fa fa-search'></mat-icon>
+                <input matInput [(ngModel)]="tblSearchDetail">
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="table-responsive border table-wrapper mx-auto mb-2 style-1" style='height: 450px;'>
+            <table class="table table-striped">
+              <thead>
+                <tr>
+                  <th class="sticky-top" scope='col'>#</th>
+                  <th class="sticky-top" scope='col'>Project Name</th>
+                  <th class="sticky-top" scope='col'>Asset Category</th>
+                  <th class="sticky-top" scope='col'>Quantity</th>
+                  <th class="sticky-top" scope='col'>Description</th>
+                  <th class="sticky-top text-center" scope='col'>Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  *ngFor="let item of ipcDetailList | sort: 'ipcRefDetailID : desc' | search:'projectShortName,assetCatDescription,qty,description':tblSearchDetail let i=index">
+                  <td class="text-center">{{i+1}}</td>
+                  <td>{{item.projectShortName}}</td>
+                  <td>{{item.assetCatDescription}}</td>
+                  <td>{{item.qty}}</td>
+                  <td>{{item.description}}</td>
+                  <td class='inline-block text-center'>
+                    <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="genPin(item,'editDetail')"></span>
+                    <span class='fa fa-trash-o cursorPointer text-danger pr-3'
+                      (click)="genPin(item,'deleteDetail')"></span>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div><!-- End -->
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Enter Pin Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="genPinModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Enter Pin</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Enter Pin</mat-label>
+              <input matInput type="password" maxlength="4" (keydown)="onKeyPress($event)" [(ngModel)]="txtPin" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="resetPin()">
+              Enter Pin
+            </button>
+          </div>
+          <div class="col-md-4">
+            <button mat-raised-button color="primary" (click)="allowUpdation()">
+              OK
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Start modal window for bigger image -->
+<div id="myModal" class="modal">
+
+  <!-- The Close Button -->
+  <span class="close" (click)="closeModal()">&times;</span>
+
+  <!-- Modal Content (The Image) -->
+  <a class="modal-content" id="img01"></a>
+
+  <!-- Modal Caption (Image Text) -->
+</div>
+<!-- End modal window for bigger image -->

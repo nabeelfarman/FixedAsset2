@@ -1,0 +1,375 @@
+<div class="row">
+  <div class="col-md-12 text-center">
+    <h1>Asset Categories</h1>
+  </div>
+</div>
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<!-- container -->
+<div class="container-fluid boxShadow-1 bg-white" *ngIf="!loadingBar">
+  <div class="row">
+    <!-- entry form -->
+    <div class="col-md-4 pl-3 pr-0 border">
+      <div class="row bgGrey">
+        <div class="col-md-12 pt-4">
+          <h3 class='text-white pb-2'>{{heading}} Asset Category</h3>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field color="warn" class="w-100">
+            <mat-label>Account - Category</mat-label>
+            <mat-select [(ngModel)]="cmbAccCategory"
+              (ngModelChange)="filterTable(cmbAccCategory);getAccCatDescription(cmbAccCategory)">
+              <mat-option>
+                <ngx-mat-select-search [(ngModel)]="searchAccCat" [placeholderLabel]="'Search...'"
+                  [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+              </mat-option>
+              <mat-option *ngFor="
+                  let item of accCatList | search: 'accountsCatagory':searchAccCat" [value]="item.accountsCatID">
+                {{ item.accountsCatagory }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1" *ngIf="lblDepRule!=''">
+        <div class="col-md-10 text-danger pb-2 border-right border-bottom">
+          {{lblDepRule}}
+        </div>
+        <div class="col-md-2 text-danger pb-2 text-right border-bottom">
+          {{lblBaseRate}}%
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>Category Short Name</mat-label>
+            <input matInput [(ngModel)]="txtCatShrtName" maxlength="5">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>Category Full Name</mat-label>
+            <input matInput [(ngModel)]="txtCatFullName">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" [(ngModel)]="imgFile" (change)="onFileSelected($event)">
+            <label class="custom-file-label" for="customFile">Choose Asset Image</label>
+          </div>
+        </div>
+      </div>
+      <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2 text-center">
+          <div class="text-center">
+            <img [src]="imageUrl" class="rounded" width="115" height="115" id="myImg" (click)="zoomImage()">
+          </div>
+        </div>
+      </div>
+      <!-- <div class="row">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>Description</mat-label>
+            <textarea matInput placeholder=""></textarea>
+          </mat-form-field>
+        </div>
+      </div> -->
+      <!-- next row -->
+      <div class="footer w-100">
+        <div class="row border-top bgGrey pt-2 pb-2 pl-3">
+          <div class="col-md-12 inline-block">
+            <a class="btn-flip mr-3" data-back="Save" data-front="Save" (click)="save()"></a>
+            <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clearAll()"></a>
+          </div>
+        </div>
+      </div>
+      <!-- <div class="row pr-4 pl-1">
+        <div class="col-md-3 pt-2">
+          <button mat-button mat-raised-button color="primary" class='noneOutline w-100' (click)="save()">Save</button>
+        </div>
+        <div class="col-md-3 pt-2">
+          <button mat-button mat-raised-button color="warn" class='noneOutline w-100' (click)="clear()">Reset</button>
+        </div>
+      </div> -->
+      <br>
+    </div>
+    <!-- saved locations -->
+    <div class="col-md-8 bg-light">
+      <div class="row">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class="w-100">
+            <mat-label>search...</mat-label>
+            <mat-icon matPrefix class='fa fa-search'></mat-icon>
+            <input matInput [(ngModel)]="tblSearch">
+          </mat-form-field>
+        </div>
+      </div>
+      <div class="table-responsive border mb-2 table-wrapper mx-auto mb-2 style-1" style='height: 560px;'>
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="sticky-top" scope='col'>#</th>
+              <th class="sticky-top" scope='col'>Full Name</th>
+              <th class="sticky-top" scope='col'>Short Name</th>
+              <th class="sticky-top" scope='col'>Account Category</th>
+              <th class="sticky-top" scope='col'>Depreciation Rule</th>
+              <th class="sticky-top" scope='col'>Base Rate</th>
+              <th class="sticky-top text-center" scope='col'>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let item of assetCatList | sort: 'assetCatID : desc' | search:'accountsCatagory,assetCatCode,assetCatDescription':tblSearch let i=index">
+              <td class="text-center">{{i+1}}</td>
+              <td>{{item.assetCatDescription}}</td>
+              <td>{{item.assetCatCode}}</td>
+              <td>{{item.accountsCatagory}}</td>
+              <td>{{item.depreciationRule}}</td>
+              <td>{{item.baseRate}}</td>
+              <td class='inline-block text-center'>
+                <span class='fa fa-list-alt cursorPointer pr-3 text-primary'
+                  (click)="clearAllSpec(); getAssetCatagoriesSpecifications(item.assetCatID);"></span>
+                <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="genPin(item,'edit',0)"></span>
+                <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="genPin(item,'delete',0)"></span>
+                <mat-slide-toggle [(ngModel)]="item.isActivated" (change)="genPin(item,'active',i)">
+                </mat-slide-toggle>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div><!-- End -->
+    </div>
+  </div>
+</div>
+
+<!-- Specification Detail Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="specsModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">{{lblAssetCatName}} Specification</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12 pt-2">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Specification</mat-label>
+              <mat-select [(ngModel)]="cmbSpec">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchSpec" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of specList | search: 'specificationTitle':searchSpec" [value]="item.specID">
+                  {{ item.specificationTitle }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Specification Title</mat-label>
+              <input matInput [(ngModel)]="txtSpecTitle" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 pt-2">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Type</mat-label>
+              <mat-select [(ngModel)]="cmbType">
+                <mat-option *ngFor="
+                    let item of typeList" [value]="item.typeID">
+                  {{ item.typeName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="saveSpec()">
+              Save
+            </button>
+          </div>
+          <div class="col-md-4">
+            <button mat-raised-button color="primary" (click)="clearSpec()">
+              Reset
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive border mb-2 table-wrapper mx-auto mb-2 style-1" style='height: 560px;'>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class="sticky-top" scope='col'>Asset Category</th>
+                <th class="sticky-top" scope='col'>Specification Title</th>
+                <th class="sticky-top" scope='col'>Specification Title Saved</th>
+                <th class="sticky-top" scope='col'>Type</th>
+                <th class="sticky-top text-center" scope='col'>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of specDetailList | sort: 'specID : desc' let i=index">
+                <td>{{item.assetCatDescription}}</td>
+                <td>{{item.specificationTitle}}</td>
+                <td>{{item.specificationTitleSaved}}</td>
+                <td>{{item.type}}</td>
+                <td class='inline-block text-center'>
+                  <span *ngIf="item.type!='TB'" class='fa fa-list-alt cursorPointer pr-3 text-primary'
+                    (click)="getAssetCatagoriesSpecificationDATA(item.assetCatID,item.specID)"></span>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editSpec(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteSpec(item)"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div><!-- End -->
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Specification Data Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="specsDataModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Asset Category Specification Data</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Title</mat-label>
+              <input matInput [(ngModel)]="txtTitle" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="saveSpecData()">
+              Save
+            </button>
+          </div>
+        </div>
+
+        <div class="table-responsive border mb-2 table-wrapper mx-auto mb-2 style-1" style='height: 560px;'>
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class="sticky-top" scope='col'>Make Title</th>
+                <th class="sticky-top text-center" scope='col'>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of specDataList | sort: 'makeID : desc' let i=index">
+                <td>{{item.makeTitle}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editSpecData(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteSpecData(item)"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div><!-- End -->
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Pin Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="genPinModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Enter Pin</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Enter Pin</mat-label>
+              <input matInput type="password" maxlength="4" (keydown)="onKeyPress($event)" [(ngModel)]="txtPin" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <!-- <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="resetPin()">
+              Generate Pin
+            </button>
+          </div> -->
+          <div class="col-md-4">
+            <button mat-raised-button color="primary" (click)="allowUpdation()">
+              OK
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Start modal window for bigger image -->
+<div id="myModal" class="modal">
+
+  <!-- The Close Button -->
+  <span class="close" (click)="closeModal()">&times;</span>
+
+  <!-- Modal Content (The Image) -->
+  <img class="modal-content" id="img01">
+
+  <!-- Modal Caption (Image Text) -->
+</div>
+<!-- End modal window for bigger image -->

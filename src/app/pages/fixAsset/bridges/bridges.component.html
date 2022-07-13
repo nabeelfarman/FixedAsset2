@@ -1,0 +1,1032 @@
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<!-- container -->
+<div class="container-fluid boxShadow-1 bg-white" *ngIf="!loadingBar">
+  
+<div class="row pl-3 m-0 p-0">
+  <div class="col-md-6 align-self-center p-0 m-0">
+    <h1 class="align-self-center">NHA Bridges</h1>
+  </div>
+  <div class="col-md-6 text-right">
+    <nav id="pageNav" class="stroke pull-right">
+      <ul>
+        <li>
+          <a (click)="toggleView = 'form'" class="cursorPointer">Form View</a>
+        </li>
+        <li>
+          <a (click)="toggleView = 'table'" class="cursorPointer">Table View</a>
+        </li>
+        <!-- <li>
+            <a class="cursorPointer" data-toggle="modal" data-target="#costAdditionhModal">Addition</a>
+          </li>
+          <li>
+            <a class="cursorPointer" data-toggle='modal' data-target="#revaluedCostModal">Re-Valuation</a>
+          </li> -->
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- container -->
+<div class="container-fluid bg-white boxShadow-1">
+  <!-- table view -->
+  <div *ngIf="toggleView == 'table'" class="animate_animated animate_fadeInUp">
+    <!-- search bar -->
+    <div class="row pl-3">
+      <div class="col-md-10">
+        <mat-form-field class="w-100">
+          <mat-label>Search asset</mat-label>
+          <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+          <input matInput [(ngModel)]="txtSearchBridgeData" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-2 pr-3 align-self-center noneOutline">
+        <button class='noneOutline' mat-button color="warn" data-toggle="modal" data-target="#advanceSearchModal">
+          Advance Search
+        </button>
+      </div>
+    </div>
+
+    <!-- table -->
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <th>Action</th>
+          <th>Account</th>
+          <th>Road</th>
+          <th>Project</th>
+          <th>Measure</th>
+          <th>Kanal</th>
+          <th>Marla</th>
+          <th>Cost</th>
+          <th>WDV</th>
+          <th>Total Revaluation</th>
+          <th>Revaluation Surplus</th>
+          <th>Addition in Revaluation</th>
+          <th>Addition In Revaluation Surplus </th>
+          <th>Opening Revaluation</th>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of bridgeDataList | orderBy:'fixedAssetID': true | search: 'accountCode,openingRevaluationSurplus,openingRevaluationAmount,additionINRevaluationSurplus,additionINRevaluationAmount,revaluationSurplus,totalRevaluationAmount,wdv,costOfLand,areaAcquiredMarla,areaAcquiredKanal,projectShortName,roadShortName,officeDescription':txtSearchBridgeData">
+
+            <td class="inline-block">
+              <span class="fa fa-edit cursorPointer pr-3 text-primary" (click)="edit(item)"></span>
+              <span class="fa fa-trash-o cursorPointer text-danger" (click)="delete(item)"></span>
+            </td>
+            <td>{{item.officeDescription}}</td>
+            <td>{{item.roadShortName}}</td>
+            <td>{{item.projectShortName}}</td>
+            <td>{{item.areaAcquiredKanal | number}}</td>
+            <td>{{item.areaAcquiredMarla | number}}</td>
+            <td>{{item.costOfLand | number}}</td>
+            <td>{{item.wdv | number}}</td>
+            <td>{{item.totalRevaluationAmount | number}}</td>
+            <td>{{item.revaluationSurplus | number}}</td>
+            <td>{{item.additionINRevaluationAmount | number}}</td>
+            <td>{{item.additionINRevaluationSurplus | number}}</td>
+            <td>{{item.openingRevaluationAmount | number}}</td>
+            <td>{{item.openingRevaluationSurplus | number}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div><!-- end table -->
+  </div><!-- end table view -->
+
+  <!-- form view -->
+  <div *ngIf="toggleView == 'form'" class="animate_animated animate_fadeInUp">
+    <div class="row">
+      <div class="col-md-6 border-right pl-3 pr-0">
+
+        <div class="row mt-2 pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Account Section</mat-label>
+              <mat-select [(ngModel)]="ddlAccSec">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchAccSec" [placeholderLabel]="'Search...'" [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of accSecList | search: 'officeDescription':txtSearchAccSec" value="{{item.officeSecID}}">
+                  {{item.officeDescription}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Trial Balance</mat-label>
+              <mat-select [(ngModel)]="ddlTrailBalance" (ngModelChange)="filterProject(ddlTrailBalance, '')">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchTrailBalance" [placeholderLabel]="'Search...'" [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of projectsList | search: 'accountCode,projectShortName,projectName':txtSearchTrailBalance" value="{{item.projectID}}">
+                  {{item.projectShortName}} - {{ item.projectName }}                  
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Account Code - Project Name</mat-label>
+              <mat-select [(ngModel)]="ddlProject" (ngModelChange)="filterProject(ddlProject, 'accCode')">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchProject" [placeholderLabel]="'Search...'" [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of projectsList | search: 'accountCode,projectName':txtSearchProject" value="{{item.projectID}}" [disabled]="item.accountCode == 0">
+                  {{ item.accountCode }} - {{ item.projectName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Project Package</mat-label>
+              <input matInput [(ngModel)]="projectPackage">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Bridge Name</mat-label>
+              <input matInput [(ngModel)]="bridgeName">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Bridge Length</mat-label>
+              <input matInput type="number" min="0" [(ngModel)]="bridgeLength">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Road</mat-label>
+              <mat-select [(ngModel)]="ddlRoads">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchRoads" [placeholderLabel]="'Search...'" [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of roadsList | search: 'roadShortName,roadName':txtSearchRoads" value="{{item.roadID}}">
+                  {{item.roadShortName}} - {{item.roadName}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Date of Nationalization</mat-label>
+              <input matInput [matDatepicker]="picker2" [(ngModel)]="nationalizationDate">
+              <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+              <mat-datepicker #picker2></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-6">
+            <mat-form-field class='w-100'>
+              <mat-label>Construction From</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="cfDate">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field class='w-100'>
+              <mat-label>Construction To</mat-label>
+              <input matInput [matDatepicker]="picker1" [(ngModel)]="ctDate">
+              <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+              <mat-datepicker #picker1></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-6">
+            <mat-form-field class='w-100'>
+              <mat-label>Construction Cost</mat-label>
+              <input matInput type="number" min="0" [(ngModel)]="constructionCost">
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field class='w-100'>
+              <mat-label>Land Cost</mat-label>
+              <input matInput type="number" min="0" [(ngModel)]="landCost">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-4 align-self-center font-weight-bold">
+            Area Acquired
+          </div>
+          <div class="col-md-4">
+            <mat-form-field class='w-100'>
+              <mat-label>Measurement Unit</mat-label>
+              <mat-select [(ngModel)]="ddlLandMeasurement">
+                <mat-option *ngFor="let item of landMeasurementList" value="{{item.landMeasureTypeID}}">
+                  {{ item.landMeasureType}}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Kanals</mat-label>
+              <input matInput type="number" min="0" [(ngModel)]="aKanal">
+            </mat-form-field>
+          </div>
+          <div class="col-md-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Marlas</mat-label>
+              <input matInput type="number" min="0" max="20" [(ngModel)]="aMarla">
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Remarks</mat-label>
+              <textarea matInput [(ngModel)]="remarks"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row border-top bgGrey pt-3 pb-3 pl-4 pr-4">
+          <div class="col-md-12 inline-block">
+            <a class="btn-flip mr-3" data-back="Save" data-front="Save" (click)="save()"></a>
+            <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clear()"></a>
+          </div>
+        </div>
+      </div><!-- end of first 6 columns -->
+
+      <!-- next 6 columns -->
+      <div class="col-md-6 bg-light pt-2 pl-4 pr-4">
+
+        <div class="row mt-3">
+          <div class="col-md-12 border-bottom">
+            <h5>Cost Additions</h5>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="offset-md-1 col-md-5 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2" data-toggle="modal" data-target="#additionOpeningModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Opening</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblOpeningCost | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-circle-o-notch fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5 mb-4">
+            <div class="card border-left-success shadow h-100 py-2" data-toggle="modal" data-target="#additionsAdditionModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Additions</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblAddition | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-plus-circle fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="col-md-12 border-bottom">
+            <h5>Depriciation</h5>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="offset-md-1 col-md-5 mb-4">
+            <div class="card border-left-info shadow h-100 py-2" data-toggle="modal"
+              data-target="#depriciationsOpeningModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Opening</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblOpeningDepriciation | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-circle-o-notch fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-5 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2" data-toggle="modal"
+              data-target="#depriciationsDepriciationModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Depriciation</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblDepriciation | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-level-down fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="col-md-12 border-bottom">
+            <h5>Re-Valuation</h5>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+
+          <div class="offset-md-1 col-md-5 mb-4">
+            <div class="card border-left-warning shadow h-100 py-2" data-toggle="modal" data-target="#revaluationsOpeningModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">Opening</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblOpeningReval | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-circle-o-notch fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5 mb-4">
+            <div class="card border-left-info shadow h-100 py-2" data-toggle="modal"
+              data-target="#revaluationRevaluationsModal" (click)="clearFaDetail()">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-info text-uppercase mb-1">Re-Valuations</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblReval | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-chain fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="offset-md-1 col-md-5 mb-4">
+            <div class="card border-left-primary shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">Opening Surlus</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblOpeningSurplus | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-circle-o-notch fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-md-5 mb-4">
+            <div class="card border-left-success shadow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Surplus</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">Rs. {{lblSurplus | number}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-circle-o-notch fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="col-md-12 border-bottom">
+            <h5>Accounting Transactions</h5>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-3">
+          <div class="offset-md-1 col-md-5 mb-4">
+            <div class="card border-left-success shadow h-100 py-2" data-toggle="modal"
+              data-target="#transactionsModal">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div class="text-xs font-weight-bold text-success text-uppercase mb-1">Transactions</div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">{{lblTransactions}}</div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fa fa-stack fa-2x text-grey"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div><!-- end form view -->
+</div><!-- end container -->
+
+
+<!-- Advance Search Modal -->
+<div class="modal animate__animated animate__bounceIn" id="advanceSearchModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Advance Search</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Province - Region - Location</mat-label>
+              <mat-select>
+                <mat-option value="option">Option</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Office Type</mat-label>
+              <mat-select>
+                <mat-option value="option">Option</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Wing - Section</mat-label>
+              <mat-select>
+                <mat-option value="option">Option</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Additoinal Cost - Opening Modal -->
+<div class="modal animate__animated animate__bounceIn" id="additionOpeningModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Cost Additions - Opening Balances</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Opening Cost</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of oFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.openingCost | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editOC(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteFA(item, 'o')"></span>
+                </td>
+              </tr>
+              <tr>
+                <td class='text-center'></td>
+                <td><input type="text" class="form-control text-right" placeholder="Opening Cost" currencyMask [(ngModel)]="txtFaAmount"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]="txtFaDate"> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker1" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                    <mat-datepicker #picker1></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-save cursorPointer pr-3 text-primary' (click)="saveOC()" ></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Additoinal Cost - Additions Modal -->
+<div class="modal animate__animated animate__bounceIn" id="additionsAdditionModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Cost Additions - Additions</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Addition In Cost</th>
+                <th class='text-right'>Disposal In Cost</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr >
+                <td class='text-center'></td>
+                <td><input type="text" class="form-control text-right" placeholder="Addition in cost" currencyMask [(ngModel)]="txtFaAmount"></td>
+                <td><input type="text" class="form-control text-right" placeholder="Disposal in cost" currencyMask [(ngModel)]="txtFaCost"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]="txtFaDate"> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker2" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                    <mat-datepicker #picker2></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td class='inline-block text-center'>
+                  <button mat-icon-button color="primary" class='noneOutline' (click)="saveAD()"><mat-icon class='fa fa-save'></mat-icon></button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let item of aFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.additioninCost | number}}</td>
+                <td class='text-right'>{{item.disposalinCost | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editAD(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteFA(item, 'a')"></span>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Re-Valued Cost - Opening Modal -->
+<div class="modal animate__animated animate__bounceIn" id="revaluationsOpeningModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Re-Valuation Cost - Opening Balances</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Opening Cost</th>
+                <th class='text-right'>Surplus</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class='text-center'></td>
+                <td><input placeholder="Opening Amount" type="text" class="form-control text-right" currencyMask [(ngModel)]="txtFaAmount" ></td>
+                <td><input placeholder="Surplus" type="text" class="form-control text-right" currencyMask [(ngModel)]="txtFaCost"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]="txtFaDate"> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker3" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker3"></mat-datepicker-toggle>
+                    <mat-datepicker #picker3></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-save cursorPointer pr-3 text-primary' (click)="saveOV()"></span>
+                </td>
+              </tr>
+
+              <tr *ngFor="let item of ovFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.openingRevaluationAmount | number}}</td>
+                <td class='text-right'>{{item.openingRevaluationSurplus | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editOV(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteFA(item, 'ov')"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Re-Valued Cost - Revaluations Modal -->
+<div class="modal animate__animated animate__bounceIn" id="revaluationRevaluationsModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Re-Valuation Cost - Revaluatoins</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Revaluation Amount</th>
+                <th class='text-right'>Revaluation Surplus</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>File</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class='text-center'></td>
+                <td><input type="text" class="form-control text-right" placeholder="Revaluation Amount" currencyMask [(ngModel)]="txtFaAmount"></td>
+                <td><input type="text" class="form-control text-right" placeholder="Revaluation Surplus" currencyMask [(ngModel)]="txtFaCost"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]=""> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker4" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker4"></mat-datepicker-toggle>
+                    <mat-datepicker #picker4></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td></td>
+                <td class='inline-block text-center'>
+                  <button mat-icon-button color="primary" class='noneOutline' (click)="saveRV()"><mat-icon class='fa fa-save'></mat-icon></button>
+                </td>
+              </tr>
+
+              <tr>
+                <td class='text-center'></td>
+                <td colspan="5">
+                  <div class="custom-file">
+                    <input type="file" class="custom-file-input3" id="customFile3" [(ngModel)]="filePicker" (change)="onFileSelected($event);" accept=".pdf" />
+                    <label class="custom-file-label" for="customFile3">Choose PDF file</label>
+                  </div>
+                </td>
+              </tr>
+
+
+
+              <tr *ngFor="let item of vFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.revaluationAmount | number}}</td>
+                <td class='text-right'>{{item.revalutionSurplus | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='text-center'>
+                  <a href="../../../../assets/files/{{item.faDetailID}}.pdf" download>download file</a>
+                </td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editRV(item)"></span>
+                  <span class='fa fa-trash cursorPointer text-danger pr-3' (click)="deleteFA(item, 'v')"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Depriciations - Opening Modal -->
+<div class="modal animate__animated animate__bounceIn" id="depriciationsOpeningModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Depriciation - Opening Balances</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Opening Cost</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of odFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.openingDepreciation | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editOD(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteFA(item, 'o')"></span>
+                </td>
+              </tr>
+              <tr>
+                <td class='text-center'></td>
+                <td><input type="text" class="form-control text-right" placeholder="Opening Cost" currencyMask [(ngModel)]="txtFaAmount"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]="txtFaDate"> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker5" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker5"></mat-datepicker-toggle>
+                    <mat-datepicker #picker5></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-save cursorPointer pr-3 text-primary' (click)="saveOD()" ></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Depriciations - Depriciation Modal -->
+<div class="modal animate__animated animate__bounceIn" id="depriciationsDepriciationModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Deprciation - Annual Depriciation</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-right'>Depriciation For Year</th>
+                <th class='text-right'>Disposal In Depriciation</th>
+                <th class='text-center'>As on</th>
+                <th class='text-center'>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr >
+                <td class='text-center'></td>
+                <td><input type="text" class="form-control text-right" placeholder="Depriciation For Year" currencyMask [(ngModel)]="txtFaAmount"></td>
+                <td><input type="text" class="form-control text-right" placeholder="Disposal In Depriciation" currencyMask [(ngModel)]="txtFaCost"></td>
+                <td>
+                  <!-- <input type="date" class="form-control text-right" [(ngModel)]="txtFaDate"> -->
+                  <mat-form-field class='w-100'>
+                    <mat-label>Date</mat-label>
+                    <input matInput [matDatepicker]="picker6" [(ngModel)]="txtFaDate">
+                    <mat-datepicker-toggle matSuffix [for]="picker6"></mat-datepicker-toggle>
+                    <mat-datepicker #picker6></mat-datepicker>
+                  </mat-form-field>
+                </td>
+                <td class='inline-block text-center'>
+                  <button mat-icon-button color="primary" class='noneOutline' (click)="saveD()"><mat-icon class='fa fa-save'></mat-icon></button>
+                </td>
+              </tr>
+
+              <tr *ngFor="let item of dFaDetailList | orderBy:'year': true; let i=index;">
+                <td class='text-center'>{{i + 1}}</td>
+                <td class='text-right'>{{item.depreciationforYear | number}}</td>
+                <td class='text-right'>{{item.disposalinDepreciation | number}}</td>
+                <td class='text-center'>{{item.year | date}}</td>
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editD(item)"></span>
+                  <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteFA(item, 'a')"></span>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Transactions Modal -->
+<div class="modal animate__animated animate__bounceIn" id="transactionsModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Transactions Detail</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class='text-center'>#</th>
+                <th class='text-center'>Date</th>
+                <th>Account Code</th>
+                <th>Account Title</th>
+                <th class='text-right'>Debit</th>
+                <th class='text-right'>Credit</th>
+                <th class='text-center'>Type</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of tempTransactionList | orderBy:'transDate': true; let i=index;">
+                <td class='text-center'>{{i+1}}</td>
+                <td class='text-center'>{{item.transDate | date}}</td>
+                <td>{{item.accountCode}}</td>
+                <td>{{item.accountTitle}}</td>
+                <td class='text-right'>{{item.debit | number}}</td>
+                <td class='text-right'>{{item.credit| number}}</td>
+                <td class="text-center">{{item.typeofEntry}}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

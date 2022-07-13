@@ -1,0 +1,103 @@
+<div class="row">
+  <div class="col-md-6">
+    <mat-form-field class="w-100">
+      <mat-label>Location - Sub Location</mat-label>
+      <mat-select [(ngModel)]="cmbLocation">
+        <mat-option>
+          <ngx-mat-select-search [(ngModel)]="searchLocation" [placeholderLabel]="'Search...'"
+            [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+        </mat-option>
+
+        <mat-option *ngFor="
+                  let item of locList
+                    | search
+                      : 'subLocationDescription, mainLocationDescription'
+                      : searchLocation
+                " [value]="item.subLocID" [disabled]="item.isActivated == 0">
+          <div class="row d-flex border-bottom">
+            <div class="col-md-3 col-sm-12">
+              {{ item.subLocationDescription }}
+            </div>
+            <div class="col-md-3 col-sm-12">
+              {{ item.mainLocationDescription }}
+            </div>
+          </div>
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-md-3">
+    <mat-form-field class="w-100">
+      <mat-label>Office Type</mat-label>
+      <mat-select [(ngModel)]="cmbOfcType" (ngModelChange)="getWingSection(cmbOfcType)">
+        <mat-option *ngFor="let item of ofcTypeList" [value]="item.officeTypeID">
+          {{ item.officeTypeDescription }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-md-3">
+    <mat-form-field class="w-100">
+      <mat-label>Wing - Section *</mat-label>
+      <mat-select [(ngModel)]="cmbWngSection">
+        <!-- <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchSection" /> -->
+        <mat-option>
+          <ngx-mat-select-search [(ngModel)]="searchSection" [placeholderLabel]="'Search...'"
+            [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+        </mat-option>
+
+        <mat-option *ngFor="
+              let item of wngSectionList
+                | search: 'officeDescription':searchSection
+            " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+          {{ item.officeDescription }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-4">
+    <mat-form-field color="warn" class="w-100">
+      <mat-label>Custody *</mat-label>
+      <mat-select [(ngModel)]="cmbCustody">
+        <mat-option>
+          <ngx-mat-select-search [(ngModel)]="searchCustody" [placeholderLabel]="'Search...'"
+            [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+        </mat-option>
+
+        <mat-option *ngFor="
+              let item of custodyList
+                | search: 'postName,companyName':searchCustody
+            " [value]="item.postID" [disabled]="item.isActivated == 0">
+          {{ item.postName }} - {{ item.companyName }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-md-4">
+    <mat-form-field color="warn" class="w-100">
+      <mat-label>Asset - Category *</mat-label>
+      <mat-select [(ngModel)]="cmbAssetCat">
+        <mat-option>
+          <ngx-mat-select-search [(ngModel)]="searchCategory" [placeholderLabel]="'Search...'"
+            [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+        </mat-option>
+        <mat-option *ngFor="
+                  let item of AssetCatList
+                    | search: 'assetCatDescription':searchCategory
+                " [value]="item.assetCatID" [disabled]="item.isActivated == 0">
+          {{ item.assetCatDescription }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+  </div>
+  <div class="col-md-2">
+    <button mat-raised-button color="primary" class="mr-2 mt-2" (click)="search()">
+      Search
+    </button>
+    <button mat-raised-button color="warn" class="mr-2 mt-2" (click)="clear()">
+      Reset
+    </button>
+  </div>
+</div>

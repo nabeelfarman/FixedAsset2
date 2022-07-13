@@ -1,0 +1,157 @@
+<div class="row">
+  <div class="col-md-12 text-center">
+    <h1>Location Status</h1>
+  </div>
+</div>
+
+<!-- container -->
+<div class="container-fluid boxShadow-1 bg-white">
+  <div class="row">
+    <div class="col-md-4 border-right">
+      <div class="table-responsive table-wrapper border mb-2 mx-auto mb-2 style-1">
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th class="text-center sticky-top" scope="col">#</th>
+              <th class="sticky-top" scope="col"></th>
+              <th class="sticky-top" scope="col">Location</th>
+              <th class="sticky-top text-center" scope="col">detail</th>
+            </tr>
+          </thead>
+          <tbody style="height: 400px !important;">
+            <tr *ngFor="
+                let item of userLocations | sort: 'officeTypeDescription';
+                let i = index
+              ">
+              <td class="text-center">{{ i + 1 }}</td>
+              <td>
+                <span *ngIf="item.isCompleted == 1" class="fa fa-flag cursorPointer text-success pr-3"></span>
+                <span *ngIf="item.isCompleted == 0" class="fa fa-flag cursorPointer text-danger pr-3"></span>
+              </td>
+              <td>
+                {{ item.subLocationDescription }} -
+                {{ item.officeTypeDescription }}
+              </td>
+              <td class="inline-block text-center">
+                <span class="cursorPointer pr-3 text-primary" (click)="showLocCheckList(item)">click</span>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <!-- next 8 columns -->
+    <div class="col-md-8 bg-light" style="height: 85vh;">
+      <!-- heading -->
+      <div class="row">
+        <div class="col-md-12 border-bottom">
+          <h2 class="pt-2 pb-2">{{ locationTitle }} Check List</h2>
+        </div>
+      </div>
+      <!-- accordians -->
+      <mat-accordion>
+        <mat-expansion-panel *ngFor="
+            let item of locationCheckList | sort: 'locCheckListID';
+            let i = index
+          ">
+          <mat-expansion-panel-header>
+            <mat-panel-title>
+              <span *ngIf="item.status == 0" class="fa fa-square text-danger align-self-center mr-3"></span>
+              <span *ngIf="item.status == 1" class="fa fa-square text-success align-self-center mr-3"></span>
+              {{ item.checkListName }}
+            </mat-panel-title>
+            <mat-panel-description> </mat-panel-description>
+          </mat-expansion-panel-header>
+          <!-- row -->
+          <div class="row mt-2 bg-light">
+            <div class="col-md-12 pt-3 pb-3">
+              <b>Details : </b>{{ item.checkListDescription }}
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row mt-2" *ngIf="item.fileRequired == 1 && (item.eDoc == null || item.status == 0)">
+            <div class="col-md-12 inline-block">
+              <input type="file" class="custom-file-input noneOutline" accept="application/pdf" [(ngModel)]="item.eDoc"
+                (change)="onFileSelected($event, item)" />
+              <label class="custom-file-label" for="customFile">Upload File</label>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row mt-2" *ngIf="item.fileRequired == 1 && item.eDoc != null && item.status == 0">
+            <div class="col-md-12 inline-block">
+              <label>File Name: </label>
+              <span class="ml-2 cursorPointer text-danger border-bottom">{{lblFileName}}</span>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row mt-2" *ngIf="item.fileRequired == 1 && item.eDoc != null && item.status == 1">
+            <div class="col-md-12 inline-block">
+              <label>uploaded File: </label>
+              <span class="fa fa-file-pdf-o ml-5 cursorPointer text-danger" style='font-size: 2.0em !important;'
+                (click)='openPDFFile(item)'></span>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row mt-2" *ngIf="item.status == 1">
+            <div class="col-md-12">
+              <label><b>Remarks : </b>{{item.description}}</label>
+            </div>
+          </div>
+          <div class="row mt-2" *ngIf="item.fileRequired == 2 && item.status == 0">
+            <div class="col-md-12 inline-block">
+              <mat-form-field class="w-100">
+                <mat-label>Response</mat-label>
+                <mat-select [(ngModel)]="item.description">
+                  <mat-option value="excellent">Exellent</mat-option>
+                  <mat-option value="good">Good</mat-option>
+                  <mat-option value="average">Average</mat-option>
+                  <mat-option value="below average">Below Average</mat-option>
+                  <mat-option value="bad">Bad</mat-option>
+                  <mat-option value="wrost">Wrost</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+          <!-- row -->
+          <div class="row mt-2" *ngIf="item.fileRequired != 2 && item.status == 0">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Remarks</mat-label>
+                <textarea matInput [(ngModel)]="item.description"></textarea>
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="dropdown-divider"></div>
+          <!-- row -->
+          <div class="row">
+            <div class="col-md-12 inline-block">
+              <button *ngIf="item.status == 0" mat-raised-button color="primary" (click)='updateCheckList(item)'>
+                Done
+              </button>
+              <button *ngIf="item.status == 1 && locStatus == 0" mat-raised-button color="warn"
+                (click)='undoneCheckList(item)'>
+                un-Done
+              </button>
+            </div>
+          </div>
+        </mat-expansion-panel>
+      </mat-accordion>
+      <!-- next row -->
+      <div class="footer w-100">
+        <div class="row border-top bgGrey pt-2 pb-2 pl-3">
+          <div class="col-md-2">
+            <input type="password" class="form-control" placeholder="PIN Code" maxlength="4" [(ngModel)]="txtPin" />
+          </div>
+          <div class="col-md-3" *ngIf="locStatus == 0">
+            <a class="btn-flip mr-3" data-back="Close Location" data-front="Close Location"
+              (click)="verifyPin('Complete')"></a>
+          </div>
+          <div class="col-md-3" *ngIf="locStatus == 1 && userRole == 'Super User'">
+            <a class="btn-flip mr-3" data-back="Open Location" data-front="Open Location"
+              (click)="verifyPin('InComplete')"></a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,890 @@
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+<!--start Main container -->
+<div class="container-fluid bg-white" *ngIf="!loadingBar">
+    <!--Start Main Row heading row-->
+    <div class="row pl-3 m-0 p-0">
+        <div class="col-md-6 align-self-center p-0 m-0">
+            <h1 class="align-self-center">Write Off</h1>
+        </div>
+        <div class="col-md-6 text-right">
+            <nav id="pageNav" class="stroke pull-right">
+                <ul>
+                <li>
+                    <a (click)="toggleView = 'form'" class="cursorPointer">Form View</a>
+                </li>
+                <li>
+                    <a (click)="toggleView = 'table'" class="cursorPointer"
+                    >Table View</a
+                    >
+                </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+    <!--end Main Row heading row-->
+    
+    <!-- Start sub container -->
+    <div class="container-fluid bg-white">
+        <!--Start Table View-->
+        <div *ngIf="toggleView == 'table'" class="animate__animated animate__fadeInUp">
+            <!-- search bar -->
+            <div class="row pl-3">
+                <div class="col-md-10">
+                <mat-form-field class="w-100">
+                    <mat-label>Search...</mat-label>
+                    <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+                    <input matInput [(ngModel)]="txtSearchData" />
+                </mat-form-field>
+                </div>
+                <!-- <div class="col-md-2 pr-3 align-self-center noneOutline">
+                <button
+                    mat-button
+                    color="warn"
+                    data-toggle="modal"
+                    data-target="#advanceSearchModal"
+                >
+                    Advance Search
+                </button>
+                </div> -->
+            </div>
+
+            <!-- table -->
+            <div class="table-responsive">
+                <table class="table table-striped">
+                <thead>
+                    <th>Action</th>
+                    <th>Loss Date</th>
+                    <th>Description Loss</th>
+                    <th>Value of Loss</th>
+                    <th>Inquiry Officer</th>
+                    <th>Authority Approved Write Off</th>
+                    <th>Write Off Amount Approved</th>
+                    <th>Value of Loss Recover</th>
+                    <th>Location</th>
+                </thead>
+                <tbody>
+                    <tr
+                    *ngFor="
+                        let item of writeOffList | search: '':txtSearchData
+                    "
+                    >
+                        <td class="inline-block">
+                            <span
+                            class="fa fa-edit cursorPointer pr-3 text-primary" (click)="genPin(item, 'edit', 0)"
+                            ></span>
+                            <span
+                            class="fa fa-trash-o cursorPointer text-danger" (click)="genPin(item, 'delete', 0)"
+                            ></span>
+                        </td>
+                        <td>{{ item.lossDate |date }}</td>
+                        <td>{{ item.descriptionofLoss }}</td>
+                        <td>{{ item.valueofLoss | number }}</td>
+                        <td>{{ item.inquiryOfficer }}</td>
+                        <td>{{ item.authorityApprovedWriteOff | number }}</td>
+                        <td>{{ item.writeOffAmountApproved | number }}</td>
+                        <td>{{ item.valueofLossToRecover | number }}</td>
+                        <td>{{ item.location }}</td>
+                    </tr>
+                </tbody>
+                </table>
+            </div>
+            <!-- end table -->
+        </div>
+        <!--End Table View-->
+
+        <!--Start Form View-->
+        <div *ngIf="toggleView == 'form'" class="animate__animated animate__fadeInUp">
+            <div class="row">
+                <!--Start WriteOff Column-->
+                <div class="col-md-6 border-right pl-3 pr-0">
+                    <!--Start 1st Row write off Date-->
+                    <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                            <mat-label>Write Off Date</mat-label>
+                            <input matInput [matDatepicker]="picker" [(ngModel)]="wOffDate" />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="picker"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #picker></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 1st Row write off Date-->
+
+                    <!--Start 2nd Row location-->
+                    <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                                <mat-label>Location</mat-label>
+                                <mat-select [(ngModel)]="ddlLocation">
+                                <mat-option>
+                                    <ngx-mat-select-search
+                                    [(ngModel)]="txtSearchLocation"
+                                    [placeholderLabel]="'Search...'"
+                                    [noEntriesFoundLabel]="'Not found'"
+                                    name="search"
+                                    ></ngx-mat-select-search>
+                                </mat-option>
+                                <mat-option
+                                    *ngFor="
+                                    let item of locationList
+                                        | search
+                                        : 'subLocationDescription,officeTypeDescription, mainLocationDescription, provinceName'
+                                        : txtSearchLocation
+                                    "
+                                    [value]="item.subLocID"
+                                    [disabled]="item.isActivated === 0"
+                                >
+                                    <table class="table">
+                                    <tr class="d-flex">
+                                        <td class="col-3">{{ item.subLocationDescription }}</td>
+                                        <td class="col-3">{{ item.officeTypeDescription }}</td>
+                                        <td class="col-3">
+                                        {{ item.mainLocationDescription }}
+                                        </td>
+                                        <td class="col-3">{{ item.provinceName }}</td>
+                                    </tr>
+                                    </table>
+                                </mat-option>
+                                </mat-select>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 2nd Row location-->
+                    
+                    <!--Start 3rd Row Loss Description-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                                <mat-label>Loss Description</mat-label>
+                                <textarea matInput [(ngModel)]="txtLossDesc" maxlength="180"></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 3rd Row Loss Description-->
+
+                    <!--Start 4th Row Total Loss and Inquiry By-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                                <mat-label>Total Loss</mat-label>
+                                <input
+                                matInput
+                                currencyMask
+                                [(ngModel)]="txtTotalLoss"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                                <mat-label>Inquiry Conducted By</mat-label>
+                                <mat-select
+                                  [(ngModel)]="ddlInquiry"
+                                >
+                                  <mat-option
+                                    *ngFor="
+                                      let item of inquiryList"
+                                    value="{{ item.postID }}"
+                                  >{{item.postName}}
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 4th Row Total Loss and Inquiry By-->
+                    
+                    <!--Start 5th Row Inquiry Remarks-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                                <mat-label>Inquiry Remarks</mat-label>
+                                <textarea matInput [(ngModel)]="txtInqRemarks" maxlength="250"></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 5th Row Inquiry Remarks-->
+                    
+                    <!--Start 6th Row Inquiry EDoc-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-12">
+                            <input
+                                type="file"
+                                class="custom-file-input"
+                                id="customFile5"
+                                [(ngModel)]="filePicker"
+                                (change)="onFileSelected($event); fileChange()"
+                            />
+                            <label class="custom-file-label" for="customFile5"
+                                >Inquiry E Doc</label
+                            >
+                        </div>
+                    </div>
+                    <!--End 6th Row Inquiry EDoc-->
+                    
+                    <!--Start 7th Row-->
+                    <div class="row pl-4 pr-4 mt-2">
+                        <div class="col-md-4">
+                            <mat-form-field class="w-100">
+                                <mat-label>Write Off Approved By</mat-label>
+                                <mat-select
+                                  [(ngModel)]="ddlWOAppBy"
+                                >
+                                  <mat-option
+                                    *ngFor="
+                                      let item of approvedList"
+                                    value="{{ item.postID }}"
+                                  >{{item.postName}}
+                                  </mat-option>
+                                </mat-select>
+                              </mat-form-field>
+                        </div>
+                        <div class="col-md-4">
+                            <mat-form-field class="w-100">
+                                <mat-label>Amount Approved</mat-label>
+                                <input
+                                matInput
+                                currencyMask
+                                [(ngModel)]="txtAmountApp"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-4">
+                            <mat-form-field class="w-100">
+                                <mat-label>Loss To Recover</mat-label>
+                                <input
+                                matInput
+                                currencyMask
+                                [(ngModel)]="txtLossRec"
+                                />
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 7th Row-->
+                    
+                    <!--Start 8th Row-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-12">
+                            <input
+                                type="file"
+                                class="custom-file-input"
+                                id="customFile6"
+                                [(ngModel)]="filePickerApproved"
+                                (change)="onFileSelectedApproved($event); fileChangeApproved()"
+                            />
+                            <label class="custom-file-label" for="customFile6"
+                                >Approved WriteOff E Doc</label
+                            >
+                        </div>
+                    </div>
+                    <!--End 8th Row-->
+                    
+                    <!--Start 9th Row-->
+                    <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                                <mat-label>Ref No</mat-label>
+                                <input
+                                matInput
+                                [(ngModel)]="txtRefNo"
+                                maxlength="40"
+                                />
+                            </mat-form-field>
+                        </div>
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                            <mat-label>Ref Date</mat-label>
+                            <input matInput [matDatepicker]="picker2" [(ngModel)]="refDate" />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="picker2"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #picker2></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 9th Row-->
+
+                    <!--Start 10th Row-->
+                    <div class="row pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                                <mat-label>Remarks</mat-label>
+                                <textarea matInput [(ngModel)]="txtRemarks"></textarea>
+                            </mat-form-field>
+                        </div>
+                    </div>
+                    <!--End 10th Row-->
+                    
+                    <!--Start 11th Row-->
+                    <div class="row border-top bgGrey pt-3 pb-3 pl-4 pr-4">
+                        <div class="col-md-12 inline-block">
+                          <a
+                            class="btn-flip mr-3"
+                            data-back="Create Writeoff"
+                            data-front="Create Writeoff"
+                            (click)="save()"
+                          ></a>
+                          <a
+                            class="btn-flip"
+                            data-back="Reset"
+                            data-front="Reset"
+                            (click)="clear()"
+                          ></a>
+                        </div>
+                      </div>
+                      <!--End 11th Row-->
+                </div>
+                <!--end WriteOff Column-->
+                <!--Start Asset Detail Column-->
+                <div class="col-md-6 bg-light pt-2 pl-4 pr-4">
+                    <!--Start Sub Row sub-heading row-->
+                    <div class="row m-0 p-0">
+                        <div class="col-md-5 align-self-center ml-n3 p-0 m-0">
+                            <h5 class="align-self-center">Assets To Write Off</h5>
+                        </div>
+                        <div class="col-md-7 text-right">
+                            <nav id="pageNav" class="stroke pull-right">
+                                <ul>
+                                <li>
+                                    <a (click)="assetToggleView = 'form'" class="cursorPointer">Form View</a>
+                                </li>
+                                <li>
+                                    <a (click)="assetToggleView = 'table'" class="cursorPointer"
+                                    >Table View</a
+                                    >
+                                </li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </div>
+                    <!--end Sub Row sub-heading row-->
+
+                    <!--Start Asset Detail Table View-->
+                    <div *ngIf="assetToggleView == 'table'" class="animate__animated animate__fadeInUp">
+                        <!-- table -->
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                            <thead>
+                                <th>Action</th>
+                                <th>Tag</th>
+                                <th>Asset Description</th>
+                                <th>Value of Loss Approved</th>
+                                <th>Total Value of Loss Share</th>
+                                <th>Remarks</th>
+                            </thead>
+                            <tbody>
+                                <tr
+                                *ngFor="
+                                    let item of writeOffDetailList"
+                                >
+                                <td class="inline-block">
+                                    <span
+                                    class="fa fa-edit cursorPointer pr-3 text-primary"
+                                    (click)="genPin(item, 'editDetail', 0)"
+                                    ></span>
+                                    <span
+                                    class="fa fa-trash-o cursorPointer text-danger" (click)="genPin(item, 'deleteDetail', 0)"
+                                    ></span>
+                                </td>
+                                <td>{{ item.tag }}</td>
+                                <td>{{ item.assetDescription }}</td>
+                                <td>{{ item.valueofLossApproved | number }}</td>
+                                <td>{{ item.valueofLossShare | number }}</td>
+                                <td>{{ item.remarks }}</td>
+                                </tr>
+                            </tbody>
+                            </table>
+                        </div>
+                        <!-- end table -->
+                    </div>
+                    <!--End Asset Detail Table View-->
+                    
+                    <!--Start Asset Detail Form View-->
+                    <div *ngIf="assetToggleView == 'form'" class="animate__animated animate__fadeInUp">
+                        <!--Start Asset Detail 1st Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                            <div class="col-md-6">
+                                <mat-radio-group
+                                    aria-label="Select an option"
+                                    [(ngModel)]="rdbAssetsType"
+                                    (ngModelChange)="changeAssetType()"
+                                >
+                                    <mat-radio-button class="mr-5" value="O"
+                                    >Others
+                                    </mat-radio-button
+                                    >
+                                    <mat-radio-button value="V">Vehicle</mat-radio-button>
+                                </mat-radio-group>
+                            </div>
+                        </div>
+                        <!--End Asset Detail 1st Row-->
+
+                        <!--Start Asset Detail 2nd Row-->
+                        <div class="row pl-4 pr-4">
+                            <div class="col-md-12" [hidden]="assetDetailID != 0">
+                                <mat-form-field class="w-100">
+                                <mat-label>Assets</mat-label>
+                                <mat-select
+                                    [(ngModel)]="ddlAssets"
+                                    (ngModelChange)="filterAssetDetail(ddlAssets)"
+                                    [disabled]="ddlLocation == ''"
+                                >
+                                    <mat-option>
+                                    <ngx-mat-select-search
+                                        [(ngModel)]="txtSearchAsset"
+                                        [placeholderLabel]="'Search...'"
+                                        [noEntriesFoundLabel]="'Not found'"
+                                        name="search"
+                                    ></ngx-mat-select-search>
+                                    </mat-option>
+                
+                                    <mat-option
+                                    *ngFor="
+                                        let item of assetsForWriteOffList
+                                        | search
+                                            : 'assetCatDescription,assetDescription,assetLocation,vehID,vehMake,vehType,vehModel'
+                                            : txtSearchAsset
+                                    "
+                                    value="{{ item.assetID }}"
+                                    >
+                                    <table class="table" *ngIf="rdbAssetsType == 'O'">
+                                        <tr class="d-flex">
+                                        <td class="col-4">{{ item.tag }}</td>
+                                        <td class="col-4">{{ item.assetDescription }}</td>
+                                        <td class="col-4">{{ item.assetLocation }}</td>
+                                        </tr>
+                                    </table>
+                
+                                    <table class="table" *ngIf="rdbAssetsType == 'V'">
+                                        <tr class="d-flex">
+                                        <td class="col-3">{{ item.vehID }}</td>
+                                        <td class="col-3">{{ item.vehMake }}</td>
+                                        <td class="col-3">{{ item.vehType }}</td>
+                                        <td class="col-3">{{ item.vehModel }}</td>
+                                        </tr>
+                                    </table>
+                                    </mat-option>
+                                </mat-select>
+                                </mat-form-field>
+                            </div>
+                            
+                            <div
+                            class="col-md-12"
+                            [hidden]="assetDetailID == 0"
+                            style="border-bottom: 1px solid #ccc"
+                            >
+                            <label>{{ lblAssets }}</label>
+                            </div>
+                        </div>
+                        <!--End Asset Detail 2nd Row-->
+
+                        <!--Start Asset Detail 3rd Row-->
+                        <div class="row pr-4 pl-1 mt-2">
+                            <div class="col-md-4 pt-2 text-center">
+                            <div class="text-center">
+                                <img
+                                [src]="imageAssetUrl"
+                                class="rounded"
+                                width="115"
+                                height="115"
+                                id="myImg"
+                                />
+                            </div>
+                            </div>
+                            <div class="col-md-4 pt-2 text-center">
+                            <div class="text-center">
+                                <img
+                                [src]="imageAssetUrl2"
+                                class="rounded"
+                                width="115"
+                                height="115"
+                                id="myImg"
+                                />
+                            </div>
+                            </div>
+                            <div class="col-md-4 pt-2 text-center">
+                            <div class="text-center">
+                                <img
+                                [src]="imageAssetUrl3"
+                                class="rounded"
+                                width="115"
+                                height="115"
+                                id="myImg"
+                                />
+                            </div>
+                            </div>
+                        </div>
+                        <!--End Asset Detail 3rd Row-->
+                        
+                        <!--Start Asset Detail 4th Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                            <mat-label>Description</mat-label>
+                            <input matInput [(ngModel)]="txtDescription" disabled />
+                            </mat-form-field>
+                        </div>
+                        </div>
+                        <!--End Asset Detail 4th Row-->
+                        
+                        <!--Start Asset Detail 5th Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                            <mat-label>Cost of Asset</mat-label>
+                            <input
+                                matInput
+                                currencyMask
+                                [(ngModel)]="txtCOAsset"
+                                disabled
+                            />
+                            </mat-form-field>
+                        </div>
+            
+                        <div class="col-md-6">
+                            <mat-form-field class="w-100">
+                            <mat-label>Date of Purchase</mat-label>
+                            <input
+                                matInput
+                                [matDatepicker]="picker2"
+                                [(ngModel)]="dateOfPurchase"
+                                disabled
+                            />
+                            <mat-datepicker-toggle
+                                matSuffix
+                                [for]="picker2"
+                            ></mat-datepicker-toggle>
+                            <mat-datepicker #picker2></mat-datepicker>
+                            </mat-form-field>
+                        </div>
+                        </div>
+                        <!--End Asset Detail 5th Row-->
+                        
+                        <!--Start Asset Detail 6th Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                        <div class="col-md-12">
+                            <mat-form-field class="w-100">
+                            <mat-label>Allocation</mat-label>
+                            <input matInput [(ngModel)]="txtAllocation" disabled />
+                            </mat-form-field>
+                        </div>
+                        </div>
+                        <!--End Asset Detail 6th Row-->
+                        
+                        <!--Start Asset Detail 7th Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100" *ngIf="disDepChrg==false">
+                                    <mat-label>Depreciation Charged</mat-label>
+                                    <input
+                                    matInput
+                                    currencyMask
+                                    [(ngModel)]="txtDepCharge"
+                                    />
+                                </mat-form-field>
+                                <div *ngIf="disDepChrg==true">
+                                    <label>Depreciation Charge: </label>
+                                    <h4>{{txtDepCharge | number}}</h4>
+                                </div>
+                            </div>
+              
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100" *ngIf="disBookVal==false">
+                                    <mat-label>Book Value</mat-label>
+                                    <input matInput currencyMask [(ngModel)]="txtBookValue"/>
+                                </mat-form-field>
+                                <div *ngIf="disBookVal==true">
+                                    <label>Book Value: </label>
+                                    <h4>{{txtBookValue | number}}</h4>
+                                </div>
+                            </div>
+              
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100" *ngIf="disRevalAmount==false">
+                                    <mat-label>Revalued Amount</mat-label>
+                                    <input matInput currencyMask [(ngModel)]="txtRevalAmount"/>
+                                </mat-form-field>
+                                <div *ngIf="disRevalAmount==true">
+                                    <label>Revalued Amount: </label>
+                                    <h4>{{txtRevalAmount | number}}</h4>
+                                </div>
+                            </div>
+                        </div>
+                        <!--End Asset Detail 7th Row-->
+                        
+                        <!--Start Asset Detail 8th Row-->
+                        <div class="row mt-2 pl-4 pr-4">
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100">
+                                    <mat-label>Reserved Price</mat-label>
+                                    <input
+                                    matInput
+                                    currencyMask
+                                    [(ngModel)]="txtResValue"
+                                    />
+                                </mat-form-field>
+                            </div>
+            
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100">
+                                    <mat-label>Value of Loss Approved</mat-label>
+                                    <input matInput currencyMask [(ngModel)]="txtLossApp"/>
+                                </mat-form-field>
+                            </div>
+            
+                            <div class="col-md-4">
+                                <mat-form-field class="w-100">
+                                    <mat-label>Total Value of Loss Share</mat-label>
+                                    <input matInput currencyMask [(ngModel)]="txtTotLossShr"/>
+                                </mat-form-field>
+                            </div>
+                        </div>
+                        <!--End Asset Detail 8th Row-->
+
+                        
+                        <!-- Start Asset Detail 9th Row-->
+                        <div class="row mt-3">
+                            <div class="col-md-8 text-left">
+                            <h5>Total Loss Shared b/w Employees: </h5>
+                            </div>
+                            <div class="col-md-3 text-right">
+                                <h5><b>{{totalLossAmount | number}}</b></h5>
+                            </div>
+                            <div class="col-md-1">
+                                <span class="fa fa-plus-square fa-2x cursorPointer" (click)="clearEmployee()" data-toggle="modal" data-target="#lossPerModal"></span>
+                            </div>
+                        </div>
+                        <!-- End Asset Detail 9th Row-->
+
+                        <!-- Start Asset Detail 10th Row-->
+                        <div class="row border-top bgGrey pt-3 pb-3">
+                            <div class="col-md-12 inline-block">
+                              <a
+                                class="btn-flip mr-3"
+                                data-back="Save Detail"
+                                data-front="Save Detail"
+                                (click)="saveDetail()"
+                              ></a>
+                              <a
+                                class="btn-flip"
+                                data-back="Reset"
+                                data-front="Reset"
+                                (click)="clear()"
+                              ></a>
+                              <!-- <a
+                                class="btn-flip"
+                                data-back="Add Employee Detail"
+                                data-front="Add Employee Detail"
+                                data-toggle="modal" data-target="#lossPerModal"
+                              ></a> -->
+                            </div>
+                          </div>
+                        <!-- End Asset Detail 10th Row-->
+                    </div>
+                    <!--End Asset Detail Form View-->
+
+            </div>
+        </div>      
+        <!--End Form View-->
+    </div>
+    <!-- Start end container -->
+
+</div>
+<!--end Main container-->
+
+<!-- Enter Pin Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="lossPerModal">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <!-- Modal Header -->
+            <div class="modal-header">
+            <h3 class="modal-title">Loss Pertains To</h3>
+            <button type="button" class="close" data-dismiss="modal">
+                &times;
+            </button>
+            </div>
+    
+            <!-- Modal body -->
+            <div class="modal-body">
+
+                <!-- Start Modal 1st Row-->
+                <div class="row pl-4 pr-4 mt-2">
+                    <div class="col-md-4">
+                        <mat-form-field class="w-100">
+                            <mat-label>Employee Name</mat-label>
+                            <input
+                            matInput
+                            [(ngModel)]="txtEmpName"
+                            />
+                        </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="w-100">
+                            <mat-label>Designation</mat-label>
+                            <mat-select
+                                [(ngModel)]="ddlDesignation"
+                            >
+                                <mat-option
+                                *ngFor="
+                                    let item of designationList"
+                                    value="{{ item.postID }}"
+                                    >{{item.postName}}
+                                </mat-option>
+                            </mat-select>
+                            </mat-form-field>
+                    </div>
+                    <div class="col-md-4">
+                        <mat-form-field class="w-100">
+                            <mat-label>Value of Loss Share</mat-label>
+                            <input
+                            matInput
+                            currencyMask
+                            [(ngModel)]="txtLossValueShr"
+                            />
+                        </mat-form-field>
+                    </div>
+                </div>
+                <!-- End Modal 1st Row-->
+                
+                <!-- Start Modal 2nd Row-->
+                <div class="row pl-4 pr-4">
+                    <div class="col-md-12">
+                        <mat-form-field class="w-100">
+                        <mat-label>Remarks</mat-label>
+                        <textarea
+                            matInput
+                            [(ngModel)]="txtDetRemarks"
+                            maxlength="80"
+                        ></textarea>
+                        </mat-form-field>
+                    </div>
+                    </div>
+                <!-- End Modal 2nd Row-->
+                
+                <!-- Start Modal 3rd Row-->
+                <div class="row border-top bgGrey pt-3 pb-3 pl-4 pr-4">
+                    <div class="col-md-12 inline-block">
+                        <a
+                        class="btn-flip mr-3"
+                        data-back="Add Employee"
+                        data-front="Add Employee"
+                        (click)="saveEmployee()"
+                        ></a>
+                        <a
+                        class="btn-flip"
+                        data-back="Reset"
+                        data-front="Reset"
+                        (click)="clearEmployee()"
+                        ></a>
+                    </div>
+                    </div>
+                <!-- End Modal 3rd Row-->
+                
+                <!-- Start Modal 4th Row-->
+                <div class="row mt-2">
+                    <div class="col-md-12">
+                        <div class="table-responsive border table-wrapper mb-2 style-3 bg-white mx-auto" style='height: 260px;'>
+                            <table class="table table-striped">
+                                <thead>
+                                <tr>
+                                    <th class="sticky-top" scope="col">Employee Name</th>
+                                    <th class="sticky-top" scope="col">Designation</th>
+                                    <th class="sticky-top" scope="col">Value of Loss Share</th>
+                                    <th class="sticky-top" scope="col">Remarks</th>
+                                    <th class="sticky-top text-center" scope='col'>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                                <tr
+                                    *ngFor="let item of empList let i=index">
+                                    <td>{{item.name}}</td>
+                                    <td>{{item.postName}}</td>
+                                    <td>{{item.valueofLossShare}}</td>
+                                    <td>{{item.remarks}}</td>
+                                    <td class='inline-block text-center'><span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editEmployee(item)"></span>
+                                    <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteEmployee(item)"></span>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                            </div>
+                    </div>
+                </div>
+                <!-- End Modal 4th Row-->
+                
+                <!-- Modal footer -->
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+  <!-- The Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="genPinModal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">Enter Pin</h3>
+          <button type="button" class="close" data-dismiss="modal">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Enter Pin</mat-label>
+                <input
+                  matInput
+                  type="password"
+                  maxlength="4"
+                  (keydown)="onKeyPress($event)"
+                  [(ngModel)]="txtPin"
+                />
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <!-- <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="resetPin()">
+              Enter Pin
+            </button>
+          </div> -->
+            <div class="col-md-4">
+              <button
+                mat-raised-button
+                color="primary"
+                (click)="allowUpdation()"
+              >
+                OK
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button
+              type="button"
+              class="btn btn-secondary"
+              data-dismiss="modal"
+            >
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

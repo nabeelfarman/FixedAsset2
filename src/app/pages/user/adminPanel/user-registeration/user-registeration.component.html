@@ -1,0 +1,328 @@
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<!-- container -->
+<div class="container-fluid boxShadow-1 bg-white" *ngIf="!loadingBar">
+
+  <div class="row">
+    <div class="col-md-12 text-center">
+      <h1>User Registeration</h1>
+    </div>
+  </div>
+
+  <!-- container -->
+  <div class="container-fluid boxShadow-1 bg-white">
+    <div class="row">
+      <!-- entry form -->
+      <div class="col-md-4 pl-3 pr-0 border-right">
+        <div class="row  bgGrey">
+          <div class="col-md-12 pt-4">
+            <h3 class='text-white pb-2'>Add / Edit User</h3>
+          </div>
+        </div>
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Email Address as User ID</mat-label>
+              <input matInput [(ngModel)]="txtEmail">
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Full Name</mat-label>
+              <input matInput [(ngModel)]="txtName">
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Father / Husbend Name</mat-label>
+              <input matInput [(ngModel)]="txtFName">
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>CNIC Number</mat-label>
+              <input matInput [(ngModel)]="txtCnic">
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>Post Title</mat-label>
+              <mat-select [(ngModel)]="ddlPost">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchPost" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of postsList | search: 'postName':txtSearchPost" value="{{item.postID}}">
+                  {{item.postName}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <!-- <div class="row pr-4 pl-1">
+        <div class="col-md-12 pt-2">
+          <mat-form-field class='w-100'>
+            <mat-label>Locations</mat-label>
+            <mat-select [formControl]="toppings" multiple>
+              <mat-select-trigger>
+                {{toppings.value ? toppings.value[0] : ''}}
+                <span *ngIf="toppings.value?.length > 1" class="example-additional-selection">
+                  (+{{toppings.value.length - 1}} {{toppings.value?.length === 2 ? 'other' : 'others'}})
+                </span>
+              </mat-select-trigger>
+              <mat-option *ngFor="let topping of toppingList" [value]="topping">{{topping}}</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+      </div> -->
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class='w-100'>
+              <mat-label>User Role</mat-label>
+              <mat-select [(ngModel)]="ddlUserRole">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchRole" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of userRoleList | search: 'roleDisplayName':txtSearchRole"
+                  value="{{item.roleID}}">{{item.roleDisplayName}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-4 pt-2">
+            <b class='text-primary'>PIN Allowed</b>
+          </div>
+          <div class="col-md-8 pt-2">
+            <mat-radio-group aria-label="Select an option" [(ngModel)]="rdbPin">
+              <mat-radio-button value="1" class='pr-2'>Yes</mat-radio-button>
+              <mat-radio-button value="0">No</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row border-top bgGrey pt-3 pb-3 pl-1">
+          <div class="col-md-12 inline-block">
+            <a class="btn-flip mr-3" data-back="Save" data-front="Save" (click)="save()"></a>
+            <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clear()"></a>
+          </div>
+        </div>
+      </div>
+      <!-- saved User Registeration -->
+      <div class="col-md-8 bg-light">
+        <div class="row">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class="w-100">
+              <mat-label>search...</mat-label>
+              <mat-icon matPrefix class='fa fa-search'></mat-icon>
+              <input matInput [(ngModel)]="txtSearchUser">
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="table-responsive table-wrapper mx-auto border style-1" style='height: 400px;'>
+          <table class="table table-fixed">
+            <thead>
+
+              <tr>
+                <th class="text-center sticky-top" scope="col">#</th>
+                <th class="sticky-top" scope="col">Email Address</th>
+                <th class="sticky-top" scope="col">Full Name</th>
+                <th class="sticky-top" scope="col">Post Title</th>
+                <th class="sticky-top" scope="col">Role</th>
+                <th class="sticky-top text-center" scope="col">Location</th>
+                <th class="text-center sticky-top" scope="col">PIN</th>
+                <th class="sticky-top text-center" scope="col">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+
+              <tr
+                *ngFor="let item of usersList | search: 'email,name,postName,roleDiscription':txtSearchUser; let i=index">
+                <td class='text-center'>{{ i + 1 }}</td>
+                <td>{{item.email}}</td>
+                <td>{{item.name}}</td>
+                <td>{{item.postName}}</td>
+                <td>{{item.roleDiscription}}</td>
+                <td data-toggle="modal" data-target='#locationModal'><span
+                    class='text-primary cursorPointer text-center' (click)="getUserLocations(item.id)">detail...</span>
+                </td>
+                <td><span class='text-primary cursorPointer text-center' (click)="genPin(item)">reset</span>
+                </td>
+                <td class='text-center' *ngIf="item.isPincode == true">
+                  <span class='fa fa-check text-success'></span>
+                </td>
+
+                <td class='text-center' *ngIf="item.isPincode == false">
+                  <span class='fa fa-close text-danger'></span>
+                </td>
+
+                <td class='inline-block text-center'>
+                  <span class='fa fa-edit cursorPointer pr-3 text-primary' (click)="editUser(item)"></span>
+                  <!-- <span class='fa fa-trash-o cursorPointer text-danger pr-3' (click)="deleteUser(item)"></span> -->
+                  <mat-slide-toggle [(ngModel)]="item.isActivated" (change)="active(item)">
+                  </mat-slide-toggle>
+                </td>
+              </tr>
+
+            </tbody>
+          </table>
+        </div><!-- End -->
+      </div>
+    </div>
+  </div>
+
+
+
+
+
+
+
+
+  <!-- Location Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="locationModal">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">User Assigned Locations</h3>
+          <button type="button" class="close" data-dismiss="modal">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <!-- opening cost -->
+          <div class="row">
+            <div class="col-md-12 pl-4 pr-4 pb-2">
+              <div class="row">
+                <div class="col-md-12 border-bottom">
+                  <h4>Add / Edit Assigned Location</h4>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row pt-3">
+                <div class="col-md-10">
+                  <mat-form-field class='w-100'>
+                    <mat-label>Location</mat-label>
+                    <mat-select [(ngModel)]="ddlLocations">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="txtSearchLoc" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+                      <!-- <mat-option *ngFor="let item of locationsList | search: 'subLocationDescription':txtSearchLoc" value="{{item.subLocID}}">{{item.subLocationDescription}}</mat-option>
+              -->
+                      <mat-option *ngFor="let item of locationsList | search: 'subLocationDescription':txtSearchLoc"
+                        value="{{item.subLocID}}" [disabled]="item.isActivated == 0">
+                        <table class="table">
+                          <tr class="d-flex">
+                            <td class="col-3">{{ item.subLocationDescription }}</td>
+                            <td class="col-5">{{ item.officeTypeDescription }}</td>
+                            <td class="col-4">{{ item.mainLocationDescription }}</td>
+                          </tr>
+                        </table>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="col-md-2">
+                  <a class="btn-flip" data-back="Save" data-front="Save" (click)="saveLocation()"></a>
+                </div>
+              </div>
+              <!-- table -->
+              <div class="table-responsive">
+                <table class="table table-striped">
+                  <thead>
+                    <th class='text-center'>#</th>
+                    <th>Location</th>
+                    <th>Office Type</th>
+                    <th>Action</th>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let item of userLocationsList; let i=index;">
+                      <td class='text-center'>{{i + 1}}</td>
+                      <td>{{item.subLocationDescription}}</td>
+                      <td>{{item.officeTypeDescription}}</td>
+                      <td class="inline-block">
+                        <span class="fa fa-trash-o cursorPointer text-danger" (click)="deleteLocation(item)"></span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Enter Pin Modal Windw -->
+  <!-- The Modal -->
+  <div class="modal animate__animated animate__bounceIn" id="genPinModal">
+    <div class="modal-dialog modal-md">
+      <div class="modal-content">
+        <!-- Modal Header -->
+        <div class="modal-header">
+          <h3 class="modal-title">Enter Pin</h3>
+          <button type="button" class="close" data-dismiss="modal">
+            &times;
+          </button>
+        </div>
+
+        <!-- Modal body -->
+        <div class="modal-body">
+          <div class="row">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Enter Pin</mat-label>
+                <input matInput type="password" maxlength="4" (keydown)="getKeyPressed($event)" [(ngModel)]="txtPin" />
+              </mat-form-field>
+            </div>
+          </div>
+          <div class="row">
+            <!-- <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="resetPin()">
+              Enter Pin
+            </button>
+          </div> -->
+            <div class="col-md-4">
+              <button mat-raised-button color="primary" (click)="allowUpdation()">
+                OK
+              </button>
+            </div>
+          </div>
+
+          <!-- Modal footer -->
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">
+              Close
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>

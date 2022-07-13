@@ -1,0 +1,24 @@
+.example-button-toggle-label {
+  display: inline-block;
+  margin: 16px;
+}
+
+[aria-label=primary] {
+  background-color: rgb(4, 0, 255);
+}
+
+[aria-label=accent] {
+  background-color: aqua;
+}
+
+.selected-tab-0 md-ink-bar {
+  background-color: red;
+}
+
+.selected-tab-1 md-ink-bar {
+  background-color: blue;
+}
+
+.selected-tab-2 md-ink-bar {
+  background-color: green;
+}

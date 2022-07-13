@@ -1,0 +1,250 @@
+<!-- page nav -->
+<div class="row">
+  <div class="col-md-12">
+    <nav id="pageNav" class="stroke pull-right">
+      <ul>
+        <li>
+          <a (click)="printDiv()" class="cursorPointer">Print Register</a>
+        </li>
+        <li>
+          <a (click)="exportExcel()" class="cursorPointer">Export Register</a>
+        </li>
+        <li>
+          <a class="cursorPointer" data-toggle='modal' data-target='#filterModal'>Report Filters</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+<div class="container-fluid bg-white boxShadow-1">
+  <div id="myTable" class="style-3 border-light">
+    <!-- report Header -->
+    <div class="row w-100">
+      <div class="col-md-6">
+        <div class="row">
+          <div class="col-md-12">
+            <label class="h5Report">NATIONAL HIGHWAY AUTHORITY</label>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <label class="h1Report">Asset Register Report - Vehicle</label>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 text-right">
+        <label class="h2Report">Muniff Ziauddin & Co.</label>
+      </div>
+    </div>
+
+    <!-- report header -->
+    <div *ngIf="rptTitle != ''">
+      <div class="row">
+        <div class="col-md-6">
+          <!-- <b class="label">Location Name: &nbsp;&nbsp;</b> -->
+          <label class="label pl-2 pr-2">{{ rptTitle }}</label>
+        </div>
+      </div>
+    </div>
+
+    <table mat-table [dataSource]="dataSource" class='border-top'>
+      <ng-container *ngFor="let column of columns; let i = index" [matColumnDef]="column.field">
+        <th mat-header-cell *matHeaderCellDef class='border-right pl-2'>
+          <div class='d-flex flex-row'>
+            <div class='align-self-center'>
+              {{ column.title }}
+            </div>
+            <div class='printNone'>
+              <button class="grid-view-header-menu noneOutline" mat-icon-button [matMenuTriggerFor]="menu">
+                <mat-icon class="fa fa-bars"></mat-icon>
+              </button>
+              <mat-menu #menu>
+                <button mat-menu-item (click)="groupBy($event, column)" class='noneOutline'>
+                  Group By This Field
+                </button>
+                <button mat-menu-item (click)="unGroupBy($event, column)" class='noneOutline'>
+                  Ungroup
+                </button>
+              </mat-menu>
+            </div>
+          </div>
+        </th>
+        <td class='pr-2 pl-2 border-right' mat-cell *matCellDef="let row">{{ row[column.field] }}</td>
+      </ng-container>
+
+      <tr mat-header-row mat-header-row *matHeaderRowDef="displayedColumns; sticky:true;"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+
+      <!-- Group header -->
+      <ng-container matColumnDef="groupHeader">
+        <td mat-cell colspan="999" *matCellDef="let group">
+          <mat-icon *ngIf="group.expanded" class="fa fa-angle-down printNone"></mat-icon>
+          <mat-icon *ngIf="!group.expanded" class="fa fa-angle-up printNone"></mat-icon>
+          <strong>{{ groupByColumns[group.level - 1] }} =
+            {{ group[groupByColumns[group.level - 1]] }} ({{
+                group.totalCounts
+              }})</strong>
+        </td>
+      </ng-container>
+
+      <tr mat-row *matRowDef="let row; columns: ['groupHeader']; when: isGroup" (click)="groupHeaderClick(row)"></tr>
+    </table>
+  </div>
+</div>
+
+
+<!-- Report Filters -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="configModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Report Configuration</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <div class="row">
+          <div class="col-md-12">
+            <button mat-raised-button color="primary" (click)='showItem()'>Show Item</button>
+          </div>
+        </div>
+        <div class="container">
+          <h2>Movies</h2>
+          <div cdkDropList #moviesList="cdkDropList" [cdkDropListData]="columns"
+            [cdkDropListConnectedTo]="[doneMovieList]" class="movie-list" (cdkDropListDropped)="onDrop($event)">
+            <div class="movie-block" *ngFor="let moviesList of columns" cdkDrag>{{moviesList.title}}</div>
+          </div>
+        </div>
+
+        <div class="container">
+          <h2>Movies Watched</h2>
+          <div cdkDropList #doneMovieList="cdkDropList" [cdkDropListData]="availColumns"
+            [cdkDropListConnectedTo]="[moviesList]" class="movie-list" (cdkDropListDropped)="onDrop($event)">
+            <div class="movie-block" *ngFor="let moviesWatched of availColumns" cdkDrag>{{moviesWatched.title}}</div>
+          </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Report Configuration -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="filterModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Report Filters</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+
+        <!-- location -->
+        <div class="row pt-2">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Province - Location - Sub Location</mat-label>
+              <mat-select [(ngModel)]="cmbLocation" (ngModelChange)="showOfficeType()">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchLocation" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                      let item of locList
+                        | search
+                          : 'subLocationDescription, mainLocationDescription, officeTypeDescription, provinceName'
+                          : searchLocation
+                    " [value]="item.subLocID" [disabled]="item.isActivated == 0 || item.isCompleted == 1">
+                  <div class="row d-flex border-bottom">
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.subLocationDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.officeTypeDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.mainLocationDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.provinceName }}
+                    </div>
+                  </div>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div><!-- end location -->
+
+        <!-- office type -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Office Type</mat-label>
+              <mat-select [(ngModel)]="cmbOfcType" (ngModelChange)="getWingSection(cmbOfcType)">
+                <mat-option *ngFor="let item of ofcTypeList" [value]="item.officeTypeID">
+                  {{ item.officeTypeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div><!-- end office type -->
+
+        <!-- wing section -->
+        <div class="row hide">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Wing - Section</mat-label>
+              <mat-select [(ngModel)]="cmbWngSection">
+                <!-- <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchSection" /> -->
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchSection" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                      let item of wngSectionList
+                        | search: 'officeDescription':searchSection
+                    " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+                  {{ item.officeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div><!-- end wing section -->
+
+        <!-- button -->
+        <div class="row">
+          <div class="col-md-12 inline-block">
+            <button mat-raised-button color="primary" (click)='getAssetRegister()' class='mr-2'>Report</button>
+            <button mat-raised-button (click)='clear()'>Reset</button>
+          </div>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div><!-- end modal body -->
+    </div>
+  </div>
+</div>

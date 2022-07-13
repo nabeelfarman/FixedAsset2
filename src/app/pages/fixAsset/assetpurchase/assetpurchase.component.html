@@ -1,0 +1,846 @@
+<div class="row pl-3 m-0 p-0">
+  <div class="col-md-6 align-self-center p-0 m-0">
+    <h1 class="align-self-center">New Purchases</h1>
+  </div>
+  <div class="col-md-6 text-right">
+    <nav id="pageNav" class="stroke pull-right">
+      <ul>
+        <li>
+          <a (click)="toggleView = 'form'" class="cursorPointer">Form View</a>
+        </li>
+        <li>
+          <a (click)="toggleView = 'table'; getPurchase()" class="cursorPointer">Table View</a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</div>
+
+<!-- container -->
+<div class="container-fluid bg-white">
+  <!-- Table View -->
+  <div *ngIf="toggleView == 'table'" class="animate_animated animate_fadeInUp">
+    <!-- search bar -->
+    <div class="row pl-3">
+      <div class="col-md-12">
+        <mat-form-field class="w-100">
+          <mat-label>Search asset</mat-label>
+          <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+          <input matInput [(ngModel)]="txtSearchPurchaseData" />
+        </mat-form-field>
+      </div>
+      <!-- <div class="col-md-2 pr-3 align-self-center noneOutline">
+        <button mat-button color="warn" data-toggle="modal" data-target="#advanceSearchModal">
+          Advance Search
+        </button>
+      </div> -->
+    </div>
+
+    <!-- table -->
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <th>Action</th>
+          <th>Account Section</th>
+          <th>Sub Location</th>
+          <th>Project</th>
+          <th>Office Type</th>
+          <th>Purchase Date</th>
+          <th>Total Amount</th>
+          <th>Memo No </th>
+          <th>Supplier Name</th>
+          <th>Supplier Invoice No</th>
+          <th>Voucher No</th>
+        </thead>
+        <tbody>
+          <tr
+            *ngFor="let item of purchaseList | orderBy:'fixedAssetID': true | search: 'officeDescription,subLocationDescription':txtSearchPurchaseData">
+
+            <td class="inline-block">
+              <span class="fa fa-edit cursorPointer pr-3 text-primary" (click)="edit(item)"></span>
+              <span class="fa fa-trash-o cursorPointer text-danger" (click)="delete(item)"></span>
+            </td>
+            <td>{{item.officeDescription}}</td>
+            <td>{{item.subLocationDescription}}</td>
+            <td>{{item.projectShortName}}</td>
+            <td>{{item.officeTypeDescription}}</td>
+            <td>{{item.purchaseDate | date}}</td>
+            <td>{{item.totalAmount | number}}</td>
+            <td>{{item.memoNo}}</td>
+            <td>{{item.supplier}}</td>
+            <td>{{item.supplierInvNo}}</td>
+            <td>{{item.voucherNo}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div><!-- end table -->
+  </div><!-- end table view -->
+
+  <!-- form view -->
+  <div *ngIf="toggleView == 'form'" class="animate_animated animate_fadeInUp">
+
+
+    <div class="row mt-2 pl-4 pr-4"
+      *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+      <div class="col-md-12">
+        <mat-form-field class='w-100'>
+          <mat-label>Location</mat-label>
+          <mat-select [(ngModel)]="ddlLocation" (ngModelChange)="filterOfficeType(ddlLocation)">
+            <mat-option>
+              <ngx-mat-select-search [(ngModel)]="txtSearchLocation" [placeholderLabel]="'Search...'"
+                [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+            </mat-option>
+            <mat-option
+              *ngFor="let item of locList | search: 'subLocationDescription, officeTypeDescription, mainLocationDescription, provinceName':txtSearchLocation"
+              value="{{item.subLocID}}">
+              <div class="row d-flex border-bottom">
+                <div class="col-md-3 col-sm-12">
+                  {{ item.subLocationDescription }}
+                </div>
+                <div class="col-md-3 col-sm-12">
+                  {{ item.officeTypeDescription }}
+                </div>
+                <div class="col-md-3 col-sm-12">
+                  {{ item.mainLocationDescription }}
+                </div>
+                <div class="col-md-3 col-sm-12">
+                  {{ item.provinceName }}
+                </div>
+              </div>
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+      <div class="col-md-12 align-self-center font-weight-bold inline-block">
+        <label class="align-self-center pr-2">Location: </label>
+        <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblLocation }}</label>
+      </div>
+    </div>
+
+    <div class="row">
+
+      <div class="col-md-6">
+        <!-- next row -->
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <br />
+            <label class="align-self-center pr-2">Office Type: </label>
+            <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblOfcType }}</label>
+            <br /><br />
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">Project: </label>
+            <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblProject }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Project</mat-label>
+              <mat-select [(ngModel)]="ddlProject" (ngModelChange)="filterIPC(ddlProject)">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchProject" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of projectsList | search: 'projectShortName,projectName':txtSearchProject"
+                  value="{{item.projectID}}">
+                  {{item.projectShortName}} - {{ item.projectName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">IPC Reference: </label>
+            <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblIPC }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>IPC Reference</mat-label>
+              <mat-select [(ngModel)]="ddlRef">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchRef" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of refList | search: 'ipcRefDescription':txtSearchRef"
+                  [value]="item.ipcRefID">
+                  {{ item.ipcRefDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">Mode of Acquisition: </label>
+            <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblMode }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Mode of Acquisition</mat-label>
+              <mat-select [(ngModel)]="ddlMode">
+                <mat-option *ngFor="let item of modeList" [value]="item.name">
+                  {{ item.name }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="col-md-6">
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">Account Section: </label>
+            <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblAccountSection }}</label>
+          </div>
+        </div>
+
+        <div class="row mt-2 pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Account Section</mat-label>
+              <mat-select [(ngModel)]="ddlAccSec">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="txtSearchAccSec" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="let item of accSecList | search: 'officeDescription':txtSearchAccSec"
+                  value="{{item.officeSecID}}">
+                  {{item.officeDescription}}</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">Purchase Date: </label>
+            <label
+              class="align-self-center text-primary font-weight-bold border-bottom">{{ lblPurchaseDt | date }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="dtpPurchase">
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+          <div class="col-md-12 align-self-center font-weight-bold inline-block">
+            <label class="align-self-center pr-2">Total Amount: </label>
+            <label
+              class="align-self-center text-primary font-weight-bold border-bottom">{{ lblTotalAmount | number }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pl-4 pr-4"
+          *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Total Amount</mat-label>
+              <input matInput [(ngModel)]="txtTotalAmount" currencyMask />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row pl-4 pr-4">
+          <div class="col-md-12">
+            <mat-form-field class='w-100'>
+              <mat-label>Voucher No</mat-label>
+              <input matInput [(ngModel)]="txtVoucherNo" />
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+
+    </div>
+
+
+    <!-- next row -->
+    <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+      <div class="col-md-12 align-self-center font-weight-bold inline-block">
+        <label class="align-self-center pr-2">Description: </label>
+        <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblDescription }}</label>
+      </div>
+    </div>
+
+    <!-- next row -->
+    <div class="row pl-4 pr-4" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+      <div class="col-md-12">
+        <mat-form-field class='w-100'>
+          <mat-label>Description</mat-label>
+          <textarea matInput [(ngModel)]="txtDescription"></textarea>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <!-- next row -->
+    <div class="row pl-4 pr-4" *ngIf="this.lblMode == 'RMA' || this.ddlMode == 'RMA' || this.editMode == 1">
+      <div class="col-md-6">
+        <fieldset class="scheduler-border">
+          <legend class="scheduler-border text-skyblue">Sanction Memo Detail</legend>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Memo No: </label>
+              <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblMemoNo }}</label>
+            </div>
+          </div>
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Memo No</mat-label>
+                <input matInput [(ngModel)]="txtMemo" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Memo Issued By: </label>
+              <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblMemoIssued }}</label>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class='w-100'>
+                <mat-label>Memo Issued By</mat-label>
+                <mat-select [(ngModel)]="ddlPost">
+                  <mat-option>
+                    <ngx-mat-select-search [(ngModel)]="txtSearchPost" [placeholderLabel]="'Search...'"
+                      [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                  </mat-option>
+                  <mat-option *ngFor="let item of postList | search: 'officeDescription':txtSearchPost"
+                    value="{{item.postID}}">
+                    {{item.postName}}</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Memo Date: </label>
+              <label
+                class="align-self-center text-primary font-weight-bold border-bottom">{{ lblMemoDt | date }}</label>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Memo Date</mat-label>
+                <input matInput [matDatepicker]="picker1" [(ngModel)]="dtpMemoDate">
+                <mat-datepicker-toggle matSuffix [for]="picker1"></mat-datepicker-toggle>
+                <mat-datepicker #picker1></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12 pt-2">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" accept="application/pdf" [(ngModel)]="imgFile"
+                  (change)="onFileSelected($event)">
+                <label class="custom-file-label" for="customFile">Choose Memo Document</label>
+              </div>
+            </div>
+          </div>
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12 pt-2 text-center">
+              <div class="text-center">
+                <!-- <img [src]="imageUrl" class="rounded" width="80" height="80" id="myImg" (click)="zoomImage()"> -->
+                <button class='noneOutline' mat-button
+                  *ngIf="imageUrl!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileName==''"
+                  (click)='openPDFFile()' color="primary">Open
+                  uploaded File</button>
+                <button class='noneOutline' mat-button
+                  *ngIf="imageUrl!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileName!=''"
+                  color="primary">{{lblFileName}}</button>
+                <!-- <a href="" (click) = 'openPDFFile()'>{{imageUrl}}</a> -->
+              </div>
+            </div>
+          </div>
+
+        </fieldset>
+      </div>
+      <div class="col-md-6">
+        <fieldset class="scheduler-border">
+          <legend class="scheduler-border text-skyblue">
+            Supplier Detail
+          </legend>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Supplier Name: </label>
+              <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblSupplier }}</label>
+            </div>
+          </div>
+
+          <!--next row-->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Supplier Name</mat-label>
+                <input matInput [(ngModel)]="txtSupplier" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Supplier Invoice Date: </label>
+              <label
+                class="align-self-center text-primary font-weight-bold border-bottom">{{ lblSuppInvDt | date }}</label>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Supplier Invoice Date</mat-label>
+                <input matInput [matDatepicker]="picker2" [(ngModel)]="dtpSupplierInvoice">
+                <mat-datepicker-toggle matSuffix [for]="picker2"></mat-datepicker-toggle>
+                <mat-datepicker #picker2></mat-datepicker>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row mt-2 pl-4 pr-4" *ngIf="lblPurchaseID != 0 && editMode == 0">
+            <div class="col-md-12 align-self-center font-weight-bold inline-block">
+              <label class="align-self-center pr-2">Supplier Invoice No: </label>
+              <label class="align-self-center text-primary font-weight-bold border-bottom">{{ lblSuppInvNo }}</label>
+            </div>
+          </div>
+
+          <!--next row-->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12">
+              <mat-form-field class="w-100">
+                <mat-label>Supplier Invoice No</mat-label>
+                <input matInput [(ngModel)]="txtSupInvoiceNo" />
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- next row -->
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12 pt-2">
+              <div class="custom-file">
+                <input type="file" class="custom-file-input" [(ngModel)]="imgFileSup"
+                  (change)="onSupFileSelected($event)" accept="application/pdf">
+                <label class="custom-file-label" for="customFile">Choose Supplier Document</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="row" *ngIf="(lblPurchaseID == 0 && editMode == 0) ||(lblPurchaseID != 0 && editMode != 0)">
+            <div class="col-md-12 pt-2 text-center">
+              <div class="text-center">
+                <!-- <img [src]="imageUrl" class="rounded" width="80" height="80" id="myImg" (click)="zoomImage()"> -->
+                <button class='noneOutline' mat-button
+                  *ngIf="imageUrlSup!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileNameSup==''"
+                  (click)='openPDFFileSup()' color="primary">Open
+                  uploaded File</button>
+                <button class='noneOutline' mat-button
+                  *ngIf="imageUrlSup!='../../../../../assets/IPCRefImg/dropHereImg.png' && lblFileNameSup!=''"
+                  color="primary">{{lblFileNameSup}}</button>
+              </div>
+            </div>
+          </div>
+
+        </fieldset>
+      </div>
+    </div>
+    <div class="row pl-4 pr-4 mt-4">
+      <div class="col-md-12">
+        <fieldset class="scheduler-border">
+          <legend class="scheduler-border text-skyblue">
+            Asset
+          </legend>
+
+          <div class="row">
+            <div class="col-md-9">
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-radio-group aria-label="Select an option" [(ngModel)]="rdbAsset" (change)="getAssetCat()">
+                    <mat-radio-button value="1" class="pr-5">Other Asset</mat-radio-button>
+                    <mat-radio-button value="2">Vehicle</mat-radio-button>
+                  </mat-radio-group>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Custody</mat-label>
+                    <mat-select [(ngModel)]="ddlCustody">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="txtSearchCustody" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let item of custodyList | search: 'postName,companyName':txtSearchCustody"
+                        value="{{item.postID}}">
+                        {{ item.postName }} - {{ item.companyName }}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Office Section</mat-label>
+                    <mat-select [(ngModel)]="ddlOfcSec">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="txtSearchOfcSec" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let item of ofcSecList | search: 'officeDescription':txtSearchOfcSec"
+                        value="{{item.officeSecID}}">
+                        {{item.officeDescription}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!--next row-->
+              <div class="row" *ngIf="rdbAsset == '2'">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Vehicle</mat-label>
+                    <mat-select [(ngModel)]="ddlVehicle">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="txtSearchVehicle" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let item of vehList | search: 'vehID':txtSearchVehicle" [value]="item.id">
+                        <div class="row d-flex border-bottom">
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.vehID }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.make }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.model }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.engineNum }}
+                          </div>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Asset Category</mat-label>
+                    <mat-select [(ngModel)]="ddlAssetCat" (ngModelChange)="
+                    getAssetNo();
+                    getAssetCatDescription(ddlAssetCat);
+                    assetCategorySpecs()
+                  ">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="txtSearchAssetCat" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+                      <mat-option *ngFor="let item of assetCatList | search: 'assetCatDescription':txtSearchAssetCat"
+                        [value]="item.assetCatID">
+                        {{item.assetCatDescription}}</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!-- next row -->
+              <div *ngIf="assetCategorySpecsList.length > 0"
+                class="d-flex flex-wrap flex-row bd-highlight mb-3 bg-light border">
+                <!-- dynamic fields creation -->
+                <div *ngFor="let item of assetCategorySpecsList">
+                  <!-- hidden filed -->
+                  <div *ngIf="item" (appOnCreate)="
+                    assetCategorySpecsData(
+                      item.assetCatID,
+                      item.specID,
+                      item.specificationListName
+                    )
+                  ">
+                    <!-- if text box required -->
+                    <mat-form-field *ngIf="item.type == 'TB'" class='pr-2 pl-2'>
+                      <mat-label>{{ item.specificationTitle }}</mat-label>
+                      <input matInput [(ngModel)]="this[item.specificationNgModel]" />
+                    </mat-form-field>
+
+                    <!-- if drop down is required -->
+                    <mat-form-field *ngIf="item.type == 'DD'" class='pr-2 pl-2'>
+                      <mat-label>{{ item.specificationTitle }}</mat-label>
+                      <mat-select [(ngModel)]="this[item.specificationNgModel]">
+                        <mat-option *ngFor="let spec of this[item.specificationListName]" [value]="spec.makeTitle">
+                          {{ spec.makeTitle }}
+                        </mat-option>
+                      </mat-select>
+                    </mat-form-field>
+                  </div>
+                </div>
+              </div>
+
+              <!--next row-->
+              <div class="row">
+                <div class="col-md-7">
+                  <mat-form-field class="w-100">
+                    <mat-label>Asset Description</mat-label>
+                    <input matInput [(ngModel)]="txtAssetDesc" />
+                  </mat-form-field>
+                </div>
+                <div class="col-md-5">
+                  <mat-form-field class="w-100">
+                    <mat-label>Cost For Each</mat-label>
+                    <input matInput [(ngModel)]="txtCost" currencyMask />
+                  </mat-form-field>
+                </div>
+              </div>
+
+              <!--next row-->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Remarks</mat-label>
+                    <textarea matInput [(ngModel)]="txtRemarks"></textarea>
+                  </mat-form-field>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-3 bgLightGrey boxShadow-1 pt-3">
+              <mat-card class="text-center mb-2" *ngFor="
+            let item of tagList
+              | paginate
+                : {
+                    id: 'tagP',
+                    itemsPerPage: tagItemPerPage,
+                    currentPage: tagP
+                  }
+          ">{{ item.tag }}</mat-card>
+              <!-- Pagination Starts -->
+              <div class="col-md-12 text-right">
+                <div class="paginationBox">
+                  <pagination-controls id="tagP" (pageChange)="tagP = $event"></pagination-controls>
+                </div>
+                <div class="paginationBox">
+                  <mat-form-field class="pagenateList">
+                    <mat-select [(ngModel)]="tagItemPerPage">
+                      <mat-option value="1">1</mat-option>
+                      <mat-option value="2">2</mat-option>
+                      <mat-option value="10">10</mat-option>
+                      <mat-option value="15">15</mat-option>
+                      <mat-option value="20">20</mat-option>
+                      <mat-option value="25">25</mat-option>
+                      <mat-option value="30">30</mat-option>
+                      <mat-option value="35">35</mat-option>
+                      <mat-option value="40">40</mat-option>
+                      <mat-option value="45">45</mat-option>
+                      <mat-option value="50">50</mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+                <div class="paginationBox text-white">
+                  Item per page: {{ tagItemPerPage }}
+                </div>
+              </div>
+              <!-- Pagination Ends -->
+            </div>
+          </div>
+        </fieldset>
+      </div>
+    </div>
+
+    <!-- next row -->
+    <div class="row border-top bgGrey pt-3 pb-3 ml-4 mr-4 mt-4">
+      <div class="col-md-12 inline-block">
+        <a class="btn-flip mr-3" data-back="Save" data-front="Save" (click)="savePurchaseData()"></a>
+        <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clear()"></a>
+        <a class="btn-flip" data-back="Print" data-front="Print" (click)="print()"></a>
+      </div>
+    </div>
+
+    <!-- table -->
+    <div class="table-responsive pr-4 pl-4 mt-4">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">Action</th>
+            <th scope="col">Tag</th>
+            <th scope="col">Sub Location</th>
+            <th scope="col">Office Title</th>
+            <th scope="col">Custody</th>
+            <th scope="col">Project</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="
+              let item of assetList
+              let i = index
+            ">
+            <td class="inline-block">
+              <span class="fa fa-edit cursorPointer pr-3 text-primary" (click)="editAsset(item)"></span>
+              <span class="fa fa-trash-o cursorPointer text-danger pr-3" (click)="deleteAsset(item)"></span>
+            </td>
+            <td>{{ item.tag }}</td>
+            <td>{{ item.subLocationDescription }}</td>
+            <td>{{ item.officeTypeDescription }}</td>
+            <td>{{ item.postName }}</td>
+            <td>{{ item.projectShortName }}</td>
+          </tr>
+          <tr *ngIf="assetList.length == 0">
+            <td>No Record Found</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+    <!-- end table -->
+  </div><!-- end form view -->
+
+
+</div><!-- end container -->
+
+
+<!-- asset register print -->
+<div class="table-responsive d-none" id="assetRegister">
+  <div class="row">
+    <div class="col-md-6 p-0 m-0">
+      <div class="row">
+        <div class="col-md-12">
+          <label class="h5Report">NATIONAL HIGHWAY AUTHORITY</label>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 text-right p-0 m-0">
+      <label class="h2Report">Muniff Ziauddin & Co.</label>
+    </div>
+  </div>
+  <!-- next row -->
+  <div class="row">
+    <div class="col-md-12 p-0 m-0">
+      <label class="h1Report">Asset Purchase</label>
+    </div>
+  </div>
+
+  <!-- report header -->
+  <div class="">
+    <div class="row">
+      <div class="col-md-2">
+        <b class="label">Purchase No: &nbsp;&nbsp;</b>
+        <label class="label pl-2 pr-2">{{ lblPurchaseID }}</label>
+      </div>
+      <div class="col-md-2">
+        <b class="label">Memo No: &nbsp;&nbsp;</b>
+        <label class="label pl-2 pr-2">{{ txtMemo }}</label>
+      </div>
+      <div class="col-md-3">
+        <b class="label">Purchase Date: &nbsp;&nbsp;</b>
+        <label class="label pl-2 pr-2">{{ dtpPurchase | date:'dd-MM-yyyy' }}</label>
+      </div>
+      <div class="col-md-3">
+        <b class="label">Supplier Name: &nbsp;&nbsp;</b>
+        <label class="label pl-2 pr-2">{{ txtSupplier }}</label>
+      </div>
+      <div class="col-md-2">
+        <b class="label">Project Name: &nbsp;&nbsp;</b>
+        <label class="label pl-2 pr-2">{{ lblProject }}</label>
+      </div>
+    </div>
+  </div>
+  <!-- row -->
+  <div class="row"></div>
+  <table class="table table-striped reportTable">
+    <thead>
+      <tr>
+        <th scope="col">Tag</th>
+        <th scope="col">Sub Location</th>
+        <th scope="col">Office Title</th>
+        <th scope="col">Custody</th>
+        <th scope="col">Project</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="
+          let item of assetList
+          let i = index
+        ">
+        <td>{{ item.tag }}</td>
+        <td>{{ item.subLocationDescription }}</td>
+        <td>{{ item.officeTypeDescription }}</td>
+        <td>{{ item.postName }}</td>
+        <td>{{ item.projectShortName }}</td>
+      </tr>
+      <tr *ngIf="assetList.length == 0">
+        <td>No Record Found</td>
+      </tr>
+    </tbody>
+  </table>
+  <!-- <div class="divFooter">
+    <div class="row">
+      <div class="col-md-12 text-center border-top pt-2">
+        <label class="label">{{ locationName }} - {{ officeName }}</label>
+      </div>
+    </div>
+  </div> -->
+</div>

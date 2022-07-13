@@ -1,0 +1,2184 @@
+<div class="row pl-3 m-0 p-0">
+  <div class="col-md-4 align-self-center p-0 m-0">
+    <h1 class="align-self-center">Asset Entry & Tags</h1>
+  </div>
+  <div class="col-md-8 text-right">
+    <nav id="pageNav" class="stroke text-right">
+      <ul>
+        <li>
+          <a (click)="toggleView = 'form'" class="cursorPointer">Form View</a>
+        </li>
+        <li>
+          <a (click)="toggleView = 'table'" data-toggle="modal" data-target="#advanceSearchModal" class="cursorPointer">Table View</a>
+        </li>
+        <li>
+          <a (click)="printTags()" class="cursorPointer" matBadge="{{ tagList.length }}" [matBadgeHidden]="hidden">Print
+            Tags</a>
+        </li>
+        <li>
+          <a (click)="printAssetRegister()" class="cursorPointer">Print Register</a>
+        </li>
+        <li>
+          <a (click)="exportExcel()" class="cursorPointer"><span
+              class="fa fa-file-excel-o text-success"></span>&nbsp;&nbsp;
+            Register</a>
+        </li>
+        <li>
+          <a class="cursorPointer" data-toggle="modal" data-target="#transfersReportModal"
+            (click)="clearTransferReport()">
+            Transfers Report</a>
+        </li>
+        <!-- <li class="hide">
+          <a (click)="exportPdf()" class="cursorPointer"
+            ><span class="fa fa-file-pdf-o text-danger"></span>&nbsp;&nbsp;
+            Register</a
+          >
+        </li> -->
+        <!-- <li><a href="#">More</a></li>
+        <li><a href="#">Nice staff</a></li> -->
+      </ul>
+    </nav>
+    <!-- <mat-button-toggle-group name="fontStyle" aria-label="Font Style" class='noneOutline' (click)="getAssetDetail()">
+      <mat-button-toggle backgroundColor="warn" (click)="toggleView='form'" class='noneOutline' value="bold">Form View
+      </mat-button-toggle>
+      <mat-button-toggle class='noneOutline' (click)="toggleView='table'" value="italic">Table View</mat-button-toggle>
+      <mat-button-toggle class='noneOutline' value="italic"><span matBadge="{{tagList.length}}"
+          [matBadgeHidden]="hidden" (click)="printDiv()">Print Tags</span></mat-button-toggle>
+    </mat-button-toggle-group> -->
+  </div>
+</div>
+<div class="loader" *ngIf="loadingBar">Loading...</div>
+
+<div class="container-fluid bg-white" *ngIf="!loadingBar">
+  <!-- Form View -->
+  <div *ngIf="toggleView == 'table'" class="animate__animated animate__fadeInUp">
+    <!-- search bar -->
+    <div class="row pl-3">
+      <div class="col-md-10">
+        <mat-form-field class="w-100">
+          <mat-label>search asset</mat-label>
+          <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+          <input matInput [(ngModel)]="tblSearch" />
+        </mat-form-field>
+      </div>
+      <div class="col-md-2 pr-3 align-self-center noneOutline">
+        <button mat-button color="warn" data-toggle="modal" data-target="#advanceSearchModal" (click)="clearLocation()">
+          Advance Search
+        </button>
+      </div>
+    </div>
+    <!-- table -->
+    <div class="table-responsive">
+      <table class="table table-striped">
+        <thead>
+          <tr>
+            <th scope="col">
+              <mat-checkbox class="example-margin" color="primary" [(ngModel)]="chkSelectAll" (change)="
+                  selectAllData(
+                    mainTableP,
+                    mainTableItemPerPage,
+                    chkSelectAll ? 'A' : 'B'
+                  )
+                ">Select All
+              </mat-checkbox>
+            </th>
+            <th scope="col">Action</th>
+            <th scope="col" [class.active]="order === 'tag'" (click)="setOrder('tag')">
+              Tag
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+            <th scope="col" [class.active]="order === 'subLocationDescription'"
+              (click)="setOrder('subLocationDescription')">
+              Sub-Location
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'officeTypeDescription'"
+              (click)="setOrder('officeTypeDescription')">
+              Office Type
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'accountsCatagory'" (click)="setOrder('accountsCatagory')">
+              Accounts Category
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'assetCatDescription'" (click)="setOrder('assetCatDescription')">
+              Asset - Category
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'assetDescription'" (click)="setOrder('assetDescription')">
+              Description
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'postName'" (click)="setOrder('postName')">
+              Custody Name
+            </th>
+            <th scope="col" [class.active]="order === 'assetLocation'" (click)="setOrder('assetLocation')">
+              Asset-Location
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'projectShortName'" (click)="setOrder('projectShortName')">
+              Project
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+            <th scope="col" [class.active]="order === 'ipcRef'" (click)="setOrder('ipcRef')">
+              IPC Ref.
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'otherIdentification'" (click)="setOrder('otherIdentification')">
+              Other Identification
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'serialNo'" (click)="setOrder('serialNo')">
+              Serial No.
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'vehID'" (click)="setOrder('vehID')">
+              Vehicle ID
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'previousTag'" (click)="setOrder('previousTag')">
+              Previous Tag
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'costAmount'" (click)="setOrder('costAmount')">
+              Cost
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'purchaseDate'" (click)="setOrder('purchaseDate')">
+              Purchase Date
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+            <th scope="col" [class.active]="order === 'assetCondition'" (click)="setOrder('assetCondition')">
+              Condition
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span> -->
+            </th>
+            <th scope="col">Useable?</th>
+            <th scope="col">Surplus?</th>
+            <th scope="col">Serviceable?</th>
+            <th scope="col">Condemned?</th>
+            <th scope="col">Missing?</th>
+            <th scope="col" [class.active]="order === 'remarks'" (click)="setOrder('remarks')">
+              Remarks
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'createdDate'" (click)="setOrder('createdDate')">
+              Create Date
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col" [class.active]="order === 'netBookAmount'" (click)="setOrder('netBookAmount')">
+              Net Book Value
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+
+            <th scope="col">
+              Created By
+              <!-- <span class="fa fa-angle-double-down" [hidden]="reverse"></span>
+              <span class="fa fa-angle-double-up" [hidden]="!reverse"></span></th> -->
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="
+              let item of assetDetailList
+                | search
+                  : 'tag,subLocationDescription,officeTypeDescription,accountsCatagory,assetCatDescription,assetCatDescription,assetDescription,assetLocation,postName,projectShortName,ipcRef,otherIdentification,serialNo,vehID,previousTag'
+                  : tblSearch
+                | paginate
+                  : {
+                      id: 'mainTableP',
+                      itemsPerPage: mainTableItemPerPage,
+                      currentPage: mainTableP
+                    };
+              let i = index
+            ">
+            <td class="inline-block">
+              <!-- <span class="fa fa-edit cursorPointer pr-3 text-primary" (click)="editAsset(item)"></span> -->
+              <!-- <span *ngIf="item.isCompleted == 0" class="fa fa-edit cursorPointer pr-3 text-primary"
+                (click)="genPin(item, 'editAsset')"></span>
+              <span *ngIf="item.isCompleted == 0" class="fa fa-trash-o cursorPointer text-danger"
+                (click)="genPin(item, 'deleteAsset')"></span> -->
+              <mat-checkbox *ngIf="item.isCompleted == 0" class="example-margin" color="primary"
+                [(ngModel)]="item.checkbox" (change)="pushTag(item, item.checkbox ? 'A' : 'B')"></mat-checkbox>
+            </td>
+            <td class="inline-block">
+              <!-- <span class="fa fa-edit cursorPointer pr-3 text-primary" (click)="editAsset(item)"></span> -->
+              <span *ngIf="item.isCompleted == 0" class="fa fa-edit cursorPointer pr-3 text-primary"
+                (click)="genPin(item, 'editAsset')"></span>
+              <span *ngIf="item.isCompleted == 0" class="fa fa-trash-o cursorPointer text-danger"
+                (click)="genPin(item, 'deleteAsset')"></span>
+              <!-- <mat-checkbox *ngIf="item.isCompleted == 0" class="example-margin" color="primary"
+                [(ngModel)]="item.checkbox" (change)="pushTag(item, item.checkbox ? 'A' : 'B')"></mat-checkbox> -->
+            </td>
+            <td>{{ item.tag }}</td>
+            <td>{{ item.subLocationDescription }}</td>
+            <td>{{ item.officeTypeDescription }}</td>
+            <td>{{ item.accountsCatagory }}</td>
+            <td>{{ item.assetCatDescription }}</td>
+            <td>{{ item.assetDescription }}</td>
+            <td>{{ item.postName }}</td>
+            <td>{{ item.assetLocation }}</td>
+            <td>{{ item.projectShortName }}</td>
+            <td>{{ item.ipcRef }}</td>
+            <td>{{ item.otherIdentification }}</td>
+            <td>{{ item.serialNo }}</td>
+            <td>{{ item.vehID }}</td>
+            <td>{{ item.previousTag }}</td>
+            <td>{{ item.costAmount }}</td>
+            <td>{{ item.purchaseDate | date }}</td>
+            <td>{{ item.assetCondition }}</td>
+            <td>{{ item.isUseable }}</td>
+            <td>{{ item.isSurplus }}</td>
+            <td>{{ item.isServiceAble }}</td>
+            <td>{{ item.isCondemned }}</td>
+            <td>{{ item.isMissing }}</td>
+            <td>{{ item.reamarks }}</td>
+            <td>{{ item.createdDate | date }}</td>
+            <td>{{ item.netBookAmount }}</td>
+            <td>{{ item.createdBy }}</td>
+          </tr>
+          <tr *ngIf="assetDetailList.length == 0">
+            <td>No Record Found</td>
+          </tr>
+        </tbody>
+      </table>
+      <!-- Pagination Starts -->
+      <div class="col-md-12 text-right">
+        <div class="paginationBox">
+          <pagination-controls id="mainTableP" (pageChange)="
+              mainTableP = $event;
+              selectAllData(mainTableP, mainTableItemPerPage, 'C')
+            ">
+          </pagination-controls>
+        </div>
+        <div class="paginationBox">
+          <mat-form-field class="pagenateList">
+            <mat-select [(ngModel)]="mainTableItemPerPage">
+              <mat-option value="1">1</mat-option>
+              <mat-option value="2">2</mat-option>
+              <mat-option value="10">10</mat-option>
+              <mat-option value="15">15</mat-option>
+              <mat-option value="20">20</mat-option>
+              <mat-option value="25">25</mat-option>
+              <mat-option value="30">30</mat-option>
+              <mat-option value="35">35</mat-option>
+              <mat-option value="40">40</mat-option>
+              <mat-option value="45">45</mat-option>
+              <mat-option value="50">50</mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+        <div class="paginationBox">
+          Item per page: {{ mainTableItemPerPage }}
+        </div>
+      </div>
+      <!-- Pagination Ends -->
+    </div>
+    <!-- end table -->
+  </div>
+  <!-- end Form View -->
+  <!-- Asset Tags -->
+  <div *ngIf="toggleView == 'form'" class="animate__animated animate__fadeInUp">
+    <div class="row">
+      <div class="col-md-9">
+        <!-- next row -->
+        <div class="row" *ngIf="lblLocation != ''">
+          <div class="col-md-12 inline-block">
+            <label class="align-self-center">Location:</label>
+            <label class="align-self-center pl-4 text-primary font-weight-bold border-bottom">{{ lblLocation }}</label>
+          </div>
+        </div>
+        <div class="row pt-2" *ngIf="lblLocation == ''">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Province - Location - Sub Location * </mat-label>
+              <mat-select [(ngModel)]="cmbLocation" (ngModelChange)="getAssetNo(); showOfficeType()"
+                [disabled]="disableFields">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchLocation" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of locList
+                      | search
+                        : 'subLocationDescription, mainLocationDescription, officeTypeDescription, provinceName'
+                        : searchLocation
+                  " [value]="item.subLocID" [disabled]="item.isActivated == 0 || item.isCompleted == 1">
+                  <div class="row d-flex border-bottom">
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.subLocationDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.officeTypeDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.mainLocationDescription }}
+                    </div>
+                    <div class="col-md-3 col-sm-12">
+                      {{ item.provinceName }}
+                    </div>
+                  </div>
+                  <!-- <table class="table">
+                    <tr class="d-flex">
+                      <td class="col-3">{{ item.subLocationDescription }}</td>
+                      <td class="col-3">{{ item.officeTypeDescription }}</td>
+                      <td class="col-3">{{ item.mainLocationDescription }}</td>
+                      <td class="col-3">{{ item.provinceName }}</td>
+                    </tr>
+                  </table> -->
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row" *ngIf="lblOfficeType != ''">
+          <div class="col-md-6 inline-block">
+            <label class="align-self-center">Office Type:</label>
+            <label
+              class="align-self-center text-primary pl-4 font-weight-bold border-bottom">{{ lblOfficeType }}</label>
+          </div>
+          <div class="col-md-6 inline-block">
+            <label class="align-self-center">Wing Section:</label>
+            <label class="align-self-center text-primary pl-4 font-weight-bold border-bottom">{{ lblSection }}</label>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row" *ngIf="lblOfficeType == ''">
+          <div class="col-md-6">
+            <mat-form-field class="w-100">
+              <mat-label>Office Type *</mat-label>
+              <mat-select [(ngModel)]="cmbOfcType" (ngModelChange)="getAssetNo(); getWingSection(cmbOfcType)"
+                [disabled]="disableOfcType">
+                <mat-option *ngFor="let item of ofcTypeList" [value]="item.officeTypeID">
+                  {{ item.officeTypeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6">
+            <mat-form-field class="w-100">
+              <mat-label>Wing - Section *</mat-label>
+              <mat-select [(ngModel)]="cmbWngSection" [disabled]="disableFields">
+                <!-- <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchSection" /> -->
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchSection" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of wngSectionList
+                      | search: 'officeDescription':searchSection
+                  " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+                  {{ item.officeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <hr />
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-radio-group aria-label="Select an option" [(ngModel)]="rdbAsset" (change)="getAssetCat()">
+              <mat-radio-button value="1" class="pr-5">Other Asset</mat-radio-button>
+              <mat-radio-button value="2">Vehicle</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row" *ngIf="lblAccCategory != ''">
+          <div class="col-md-12 inline-block">
+            <label class="align-self-center">Account Category:</label>
+            <label
+              class="align-self-center text-primary pl-2 font-weight-bold border-bottom">{{ lblAccCategory }}</label>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-4 inline-block" *ngIf="assetNo != ''">
+            <label class="align-self-center">Asset No:</label>
+            <label class="align-self-center pl-2 text-primary font-weight-bold border-bottom">{{ assetNo }}</label>
+          </div>
+          <div class="col-md-4 inline-block" *ngIf="lblAccCategory != ''">
+            <label class="align-self-center">Depreciation Rule:</label>
+            <label class="align-self-center pl-2 text-primary font-weight-bold border-bottom">{{ lblDepRule }}</label>
+          </div>
+          <div class="col-md-4 inline-block" *ngIf="lblAccCategory != ''">
+            <label class="align-self-center">Base Rate:</label>
+            <label class="align-self-center pl-2 text-primary font-weight-bold border-bottom">{{ lblBaseRate }}</label>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row" *ngIf="rdbAsset == '2'">
+          <div class="col-md-11">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Vehicle *</mat-label>
+              <mat-select [(ngModel)]="cmbVehicle" (ngModelChange)="getAssetCatVehicle(cmbVehicle)">
+                <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchVehicle" />
+                <mat-option *ngFor="
+                    let item of vehicleList | search: 'vehID':searchVehicle
+                  " [value]="item.id">
+                  <table class="table">
+                    <tr class="d-flex">
+                      <td class="col-2">{{ item.vehID }}</td>
+                      <td class="col-2">{{ item.make }}</td>
+                      <td class="col-2">{{ item.model }}</td>
+                      <td class="col-2">{{ item.engineNum }}</td>
+                      <td class="col-3">{{ item.chasisNum }}</td>
+                      <td class="col-1">
+                        <span class="fa fa-edit text-primary cursorPointer" (click)="editVehicle(item)"></span>
+                      </td>
+                    </tr>
+                  </table>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-1">
+            <button mat-mini-fab color="primary" aria-label="" class="noneOutline fa fa-plus" data-toggle="modal"
+              data-target="#vehicleModal" (click)="clearVehicle()"></button>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-6">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Custody *</mat-label>
+              <mat-select [(ngModel)]="cmbCustody" [disabled]="disableCustody">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchCustody" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of custodyList
+                      | search: 'postName,companyName':searchCustody
+                  " [value]="item.postID" [disabled]="item.isActivated == 0">
+                  {{ item.postName }} - {{ item.companyName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-6 mt-4" *ngIf="lblAssetCategory != ''">
+            <div class="row">
+              <div class="col-md-4">
+                <label class="align-self-center">Asset Category:</label>
+              </div>
+              <div class="col-md-8 text-left inline-block">
+                <label
+                  class="align-self-center text-primary font-weight-bold border-bottom">{{ lblAssetCategory }}</label>
+                <button mat-raised-button class="noneOutline pull-right" color="primary" (click)="assetCategorySpecs()">
+                  Show Specs
+                </button>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-6" *ngIf="lblAssetCategory == ''">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Asset - Category *</mat-label>
+              <mat-select [(ngModel)]="cmbAssetCat" (ngModelChange)="
+                  getAssetNo();
+                  getAssetCatDescription(cmbAssetCat);
+                  assetCategorySpecs()
+                " [disabled]="disableAssetCat">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchCategory" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of AssetCatList
+                      | search: 'assetCatDescription':searchCategory
+                  " [value]="item.assetCatID" [disabled]="item.isActivated == 0">
+                  {{ item.assetCatDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div *ngIf="assetCategorySpecsList.length > 0"
+          class="d-flex flex-wrap flex-row bd-highlight mb-3 bg-light border">
+          <!-- dynamic fields creation -->
+          <div *ngFor="let item of assetCategorySpecsList">
+            <!-- hidden filed -->
+            <div *ngIf="item" (appOnCreate)="
+                assetCategorySpecsData(
+                  item.assetCatID,
+                  item.specID,
+                  item.specificationListName
+                )
+              ">
+              <!-- if text box required -->
+              <mat-form-field *ngIf="item.type == 'TB'" class="pr-2 pl-2">
+                <mat-label>{{ item.specificationTitle }}</mat-label>
+                <input matInput [(ngModel)]="this[item.specificationNgModel]" />
+              </mat-form-field>
+
+              <!-- if drop down is required -->
+              <mat-form-field *ngIf="item.type == 'DD'" class="pr-2 pl-2">
+                <mat-label>{{ item.specificationTitle }}</mat-label>
+                <mat-select [(ngModel)]="this[item.specificationNgModel]">
+                  <mat-option *ngFor="let spec of this[item.specificationListName]" [value]="spec.makeTitle">
+                    {{ spec.makeTitle }}
+                  </mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Asset Description *</mat-label>
+              <input matInput [(ngModel)]="txtAssetDesc" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Asset Location *</mat-label>
+              <input matInput [(ngModel)]="txtAssetLoc" />
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Other Identification</mat-label>
+              <input matInput [(ngModel)]="txtIdentification" />
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Serial Number</mat-label>
+              <input matInput [(ngModel)]="txtSerialNo" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Select Project</mat-label>
+              <mat-select [(ngModel)]="cmbProject" (ngModelChange)="
+                  getIPC(); setProject(); filterTansTable(cmbTransferProject)
+                " [disabled]="disableMainProject">
+                <!-- <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search..."
+                  [(ngModel)]="searchProject"
+                /> -->
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchProject" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of projectList
+                      | search: 'projectName':searchProject
+                  " [value]="item.projectID">
+                  {{ item.projectName }}
+                </mat-option>
+              </mat-select>
+              <button mat-button class="noneOutline" *ngIf="cmbProject" matSuffix mat-icon-button aria-label="Clear"
+                (click)="cmbProject = undefined; $event.stopPropagation()">
+                <mat-icon class="fa fa-close"></mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>IPC Reference</mat-label>
+              <mat-select [(ngModel)]="cmbRef">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchRef" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of refList | search: 'ipcRefDescription':searchRef
+                  " [value]="item.ipcRefID">
+                  {{ item.ipcRefDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Purchase Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="dtpPurchaseDt" />
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Amount</mat-label>
+              <input matInput [(ngModel)]="txtAmount" currencyMask />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-3">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Previous Tag</mat-label>
+              <input matInput [(ngModel)]="txtPreTag" />
+            </mat-form-field>
+          </div>
+          <div class="col-md-1 text-left mt-2 ml-n3">
+            <button mat-raised-button data-toggle="modal" data-target="#tagModal" class="noneOutline fa fa-search"
+              (click)="setOldTagList()"></button>
+            <!-- <button mat-raised-button class='noneOutline text-size-large' data-toggle="modal" data-target="#tagModal">
+              <mat-icon><span class='fa fa-search'></span></mat-icon>
+            </button> -->
+            <!-- <button mat-button class="noneOutline" color="warn" >
+              <span matPrefix><span class="fa fa-search"></span></span>
+            </button> -->
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Net Book Value</mat-label>
+              <input matInput [(ngModel)]="txtNetBVal" disabled currencyMask />
+            </mat-form-field>
+          </div>
+          <div class="col-md-4">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Asset Condition *</mat-label>
+              <mat-select [(ngModel)]="cmbAssetCond">
+                <mat-option *ngFor="let item of assetCondList" [value]="item.condition">
+                  {{ item.condition }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-2">
+            <mat-slide-toggle [(ngModel)]="sldUsable" [disabled]="disableUsable" (change)="setCondemned()">Useable
+            </mat-slide-toggle>
+          </div>
+          <div class="col-md-3">
+            <mat-slide-toggle [(ngModel)]="sldServiceable" [disabled]="disableServiceable">Serviceable
+            </mat-slide-toggle>
+          </div>
+          <div class="col-md-2">
+            <mat-slide-toggle [(ngModel)]="sldSurplus" [disabled]="disableSurplus">Surplus</mat-slide-toggle>
+          </div>
+          <div class="col-md-3">
+            <mat-slide-toggle [(ngModel)]="sldCondemned" [disabled]="disableCondemned">
+              Condemned
+            </mat-slide-toggle>
+          </div>
+          <div class="col-md-2">
+            <mat-slide-toggle [(ngModel)]="sldMissing" (change)="setMissingYes()">Missing</mat-slide-toggle>
+          </div>
+        </div>
+        <br />
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-2">
+            <mat-slide-toggle [(ngModel)]="sldTransfered" (change)="setTransfer()">Transfered
+            </mat-slide-toggle>
+          </div>
+          <div *ngIf="lblTransferID != '' && lblTransferID != '0'" class="col-md-2">
+            Custody Name :
+          </div>
+          <div class="col-md-3 border-bottom text-danger" *ngIf="lblTransferID != '' && lblTransferID != '0'">
+            <b>{{ lblTransByPost }}</b>
+          </div>
+          <div class="col-md-2" *ngIf="lblTransferID != '' && lblTransferID != '0'">
+            Company Name :
+          </div>
+          <div class="col-md-3 border-bottom text-danger" *ngIf="lblTransferID != '' && lblTransferID != '0'">
+            <b>{{ lblTransByComp }}</b>
+            <span class="fa fa-edit cursorPointer text-primary pull-right" (click)="openTransferModal()"></span>
+          </div>
+        </div>
+        <!-- next row -->
+        <!-- <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Transfer Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="dtpTransferDt" />
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div> -->
+        <!-- image row -->
+        <!-- <div class="row">
+          <div class="col-md-12 pt-2">
+            <img *ngFor='let url of urls' [src]="url" height="200"> <br />
+
+            <input type='file' (change)="onSelectFile($event)" multiple>
+          </div>
+        </div> -->
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-4 pt-2">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset"
+                (change)="onAssetFileSelected($event)" />
+              <label class="custom-file-label" for="customFile">Choose 1st Asset Image</label>
+            </div>
+          </div>
+          <div class="col-md-4 pt-2">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset2"
+                (change)="onAssetFileSelected2($event)" />
+              <label class="custom-file-label" for="customFile">Choose 2nd Asset Image</label>
+            </div>
+          </div>
+          <div class="col-md-4 pt-2">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" [(ngModel)]="imgFileAsset"
+                (change)="onAssetFileSelected3($event)" />
+              <label class="custom-file-label" for="customFile">Choose 3rd Asset Image</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="row pr-4 pl-1">
+          <div class="col-md-4 pt-2 text-center">
+            <div class="text-center">
+              <img [src]="imageAssetUrl" class="rounded" width="115" height="115" id="myImg"
+                (click)="zoomAssetImage()" />
+            </div>
+          </div>
+          <div class="col-md-4 pt-2 text-center">
+            <div class="text-center">
+              <img [src]="imageAssetUrl2" class="rounded" width="115" height="115" id="myImg"
+                (click)="zoomAssetImage2()" />
+            </div>
+          </div>
+          <div class="col-md-4 pt-2 text-center">
+            <div class="text-center">
+              <img [src]="imageAssetUrl3" class="rounded" width="115" height="115" id="myImg"
+                (click)="zoomAssetImage3()" />
+            </div>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pt-2">
+          <div class="col-md-12">
+            <!-- <mat-form-field color="warn" class="w-100">
+              <mat-label>Remarks</mat-label>
+              <input matInput [(ngModel)]="txtRemarks" />
+            </mat-form-field> -->
+            <mat-form-field class="w-100">
+              <mat-label>Remarks</mat-label>
+              <textarea matInput [(ngModel)]="txtRemarks"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12 align-self-center">
+            <h5 class="align-self-center">Allow Reset</h5>
+            <hr />
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-2 mt-2">
+            <mat-checkbox class="example-margin" color="primary" [(ngModel)]="chkCustody"
+              [disabled]="disableChkCustody">Custody
+            </mat-checkbox>
+          </div>
+          <div class="col-md-2 mt-2">
+            <mat-checkbox class="example-margin" color="primary" [(ngModel)]="chkProject">Project
+            </mat-checkbox>
+          </div>
+          <div class="col-md-2 mt-2">
+            <mat-checkbox class="example-margin" color="primary" [(ngModel)]="chkassetLoc">Asset Location
+            </mat-checkbox>
+          </div>
+          <div class="col-md-2 mt-2">
+            <mat-checkbox class="example-margin" color="primary" [(ngModel)]="chkTag" [disabled]="disableTag">Same Tags
+            </mat-checkbox>
+          </div>
+          <div class="col-md-4" *ngIf="chkTag == true">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Number of Tags</mat-label>
+              <input matInput [(ngModel)]="txtTagNo" type="number" />
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row border-top bgGrey">
+          <div class="col-md-12 pt-4 pb-2">
+            <a class="btn-flip mr-3" data-back="Save Asset" data-front="Save Asset" (click)="save()"></a>
+            <a class="btn-flip" data-back="Reset" data-front="Reset" (click)="clearAll()"></a>
+            <!-- <button mat-raised-button class="noneOutline" color="warn" (click)="save()">
+              Save Asset
+            </button> -->
+            <!-- <button mat-raised-button class="noneOutline ml-2" color="primary" (click)="clear()">
+              Reset
+            </button> -->
+          </div>
+        </div>
+      </div>
+      <div class="col-md-3 bgLightGrey boxShadow-1 pt-3">
+        <div class="row">
+          <div class="col-md-2">
+            <button mat-raised-button color="primary" class="noneOutline" (click)="clearTags()">
+              Clear
+            </button>
+          </div>
+          <!-- <div class="col-md-2 offset-md-7">
+            <button mat-raised-button class='noneOutline fa fa-undo'></button>
+          </div> -->
+        </div>
+        <mat-card class="text-center mb-2" *ngFor="
+            let item of tagList
+              | paginate
+                : {
+                    id: 'tagP',
+                    itemsPerPage: tagItemPerPage,
+                    currentPage: tagP
+                  }
+          ">{{ item.tag }}</mat-card>
+        <!-- Pagination Starts -->
+        <div class="col-md-12 text-right">
+          <div class="paginationBox">
+            <pagination-controls id="tagP" (pageChange)="tagP = $event"></pagination-controls>
+          </div>
+          <div class="paginationBox">
+            <mat-form-field class="pagenateList">
+              <mat-select [(ngModel)]="tagItemPerPage">
+                <mat-option value="1">1</mat-option>
+                <mat-option value="2">2</mat-option>
+                <mat-option value="10">10</mat-option>
+                <mat-option value="15">15</mat-option>
+                <mat-option value="20">20</mat-option>
+                <mat-option value="25">25</mat-option>
+                <mat-option value="30">30</mat-option>
+                <mat-option value="35">35</mat-option>
+                <mat-option value="40">40</mat-option>
+                <mat-option value="45">45</mat-option>
+                <mat-option value="50">50</mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="paginationBox text-white">
+            Item per page: {{ tagItemPerPage }}
+          </div>
+        </div>
+        <!-- Pagination Ends -->
+      </div>
+    </div>
+  </div>
+
+  <!-- print tags -->
+  <div id="tagDiv" hidden>
+    <div class="d-flex flex-wrap">
+      <div *ngFor="let item of tagList | orderBy:'assetId': true">
+        <div class="p-5 text-center allBorder tagBox">
+          <div class="row">
+            <div class="col-md-2 text-center">
+              <qr-code [value]="item.assetId" [size]="75"></qr-code>
+            </div>
+            <div class="col-md-10">
+              <div class="row">
+                <div class="col-md-12">National Highway Authority</div>
+              </div>
+              <div class="row">
+                <div class="col-md-12 font-weight-bold pt-0 pb-0">
+                  {{ item.tag }}
+                  <!-- {{ item.tag }} - {{ item.finding }} -->
+                </div>
+              </div>
+              <div class="row">
+                <div class="col-md-12">
+                  <!-- Room No. 12 - AD Accounts -->
+                  {{ item.assetLocation }} - {{ item.custody }} -
+                  {{ item.assetId }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- end container -->
+
+<!-- Advance Search Modal -->
+<div class="modal animate__animated animate__bounceIn" id="advanceSearchModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3>Advance Search</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Province - Location - Sub Location</mat-label>
+              <mat-select [(ngModel)]="cmbSearchLocation" (ngModelChange)="showSearchOfficeType(); searchTableData()">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="advSearchLocation" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of locList
+                      | search
+                        : 'subLocationDescription,officeTypeDescription, mainLocationDescription, provinceName'
+                        : advSearchLocation
+                  " [value]="item.subLocID" [disabled]="item.isActivated === 0">
+                  <table class="table">
+                    <tr class="d-flex">
+                      <td class="col-3">{{ item.subLocationDescription }}</td>
+                      <td class="col-3">{{ item.officeTypeDescription }}</td>
+                      <td class="col-3">{{ item.mainLocationDescription }}</td>
+                      <td class="col-3">{{ item.provinceName }}</td>
+                    </tr>
+                  </table>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Office Type</mat-label>
+              <mat-select [(ngModel)]="cmbSearchOfcType" (ngModelChange)="
+                  getWingSection(cmbSearchOfcType); searchTableData()
+                " [disabled]="disableOfcType">
+                <mat-option *ngFor="let item of ofcTypeList" [value]="item.officeTypeID">
+                  {{ item.officeTypeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Wing - Section</mat-label>
+              <mat-select [(ngModel)]="cmbSearchWngSection" (ngModelChange)="searchTableData()">
+                <!-- <input
+                  type="text"
+                  class="form-control"
+                  placeholder="Search..."
+                  [(ngModel)]="advSearchSection"
+                /> -->
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="advSearchSection" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of wngSectionList
+                      | search: 'officeDescription':advSearchSection
+                  " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+                  {{ item.officeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Search Tag Modal -->
+<div class="modal animate__animated animate__bounceIn" id="tagModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Search Tag</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>search Tag</mat-label>
+              <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+              <input matInput [(ngModel)]="tblSearchTag" />
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th scope="col">Action</th>
+                <th scope="col">Tag</th>
+                <th scope="col">Sub Location</th>
+                <th scope="col">Office Title</th>
+                <th scope="col">Custody</th>
+                <th scope="col">Description</th>
+                <th scope="col">Condition</th>
+                <th scope="col">Project</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="
+                  let item of oldTagList
+                    | search
+                      : 'tag,subLocation,officeTitle,custody,description,assetCondition,project'
+                      : tblSearchTag
+                    | paginate
+                      : {
+                          id: 'preTagP',
+                          itemsPerPage: preTagItemPerPage,
+                          currentPage: preTagP
+                        };
+                  let i = index
+                ">
+                <td class="inline-block">
+                  <span class="fa fa-plus-circle cursorPointer pr-3 text-primary" (click)="getPrevTag(item)"></span>
+                </td>
+                <td>{{ item.tag }}</td>
+                <td>{{ item.subLocation }}</td>
+                <td>{{ item.officeTitle }}</td>
+                <td>{{ item.custody }}</td>
+                <td>{{ item.description }}</td>
+                <td>{{ item.assetCondition }}</td>
+                <td>{{ item.project }}</td>
+              </tr>
+              <tr *ngIf="oldTagList.length == 0">
+                <td>No Record Found</td>
+              </tr>
+            </tbody>
+          </table>
+          <!-- Pagination Starts -->
+          <div class="col-md-12 text-right">
+            <div class="paginationBox">
+              <pagination-controls id="preTagP" (pageChange)="preTagP = $event"></pagination-controls>
+            </div>
+            <div class="paginationBox">
+              <mat-form-field class="pagenateList">
+                <mat-select [(ngModel)]="preTagItemPerPage">
+                  <mat-option value="1">1</mat-option>
+                  <mat-option value="2">2</mat-option>
+                  <mat-option value="10">10</mat-option>
+                  <mat-option value="15">15</mat-option>
+                  <mat-option value="20">20</mat-option>
+                  <mat-option value="25">25</mat-option>
+                  <mat-option value="30">30</mat-option>
+                  <mat-option value="35">35</mat-option>
+                  <mat-option value="40">40</mat-option>
+                  <mat-option value="45">45</mat-option>
+                  <mat-option value="50">50</mat-option>
+                </mat-select>
+              </mat-form-field>
+            </div>
+            <div class="paginationBox">
+              Item per page: {{ preTagItemPerPage }}
+            </div>
+          </div>
+          <!-- Pagination Ends -->
+        </div>
+        <!-- end table -->
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Vehicle Modal -->
+<div class="modal animate__animated animate__bounceIn" id="vehicleModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Vehicle Entry</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div [(ngModel)]="vehID" class="hide"></div>
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Registeration No.</mat-label>
+              <input matInput [(ngModel)]="txtRegNo" />
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Make / Brand</mat-label>
+              <mat-select [(ngModel)]="cmbMake">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchMake" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="let item of vehMakeList | search: 'make':searchMake" [value]="item.make">
+                  {{ item.make }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Model</mat-label>
+              <mat-select [(ngModel)]="cmbModel">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchModel" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of vehModelList | search: 'model':searchModel
+                  " [value]="item.model">
+                  {{ item.model }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Type</mat-label>
+              <mat-select [(ngModel)]="cmbType">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchType" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="let item of vehTypeList | search: 'model':searchType" [value]="item.type">
+                  {{ item.type }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Asset Category</mat-label>
+              <mat-select [(ngModel)]="cmbVehicleAssetCat">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchVehicleAssetCat" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of vehAssetCatList
+                      | search: 'assetCatDescription':searchVehicleAssetCat
+                  " [value]="item.assetCatID" [disabled]="item.isActivated == 0">
+                  {{ item.assetCatDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Engine No.</mat-label>
+              <input matInput [(ngModel)]="txtEngine" />
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Chasis No.</mat-label>
+              <input matInput [(ngModel)]="txtChasis" />
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row pr-4 pl-1">
+          <div class="col-md-12 pt-2">
+            <mat-form-field class="w-100">
+              <mat-label>Deployed With</mat-label>
+              <textarea matInput placeholder="" [(ngModel)]="txtDeploy"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12 pt-2">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" [(ngModel)]="imgFileVehicle"
+                (change)="onVehicleFileSelected($event)" />
+              <label class="custom-file-label" for="customFile">Choose Register Document</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 pt-2 text-center">
+            <div class="text-center">
+              <button class="noneOutline" mat-button *ngIf="
+                  imageVehicleUrl !=
+                    '../../../../../assets/assetEntryImg/dropHereImg.png' &&
+                  lblFileName == ''
+                " color="primary">
+                Open uploaded File
+              </button>
+              <button class="noneOutline" mat-button *ngIf="
+                  imageVehicleUrl !=
+                    '../../../../../assets/assetEntryImg/dropHereImg.png' &&
+                  lblFileName != ''
+                " color="primary" (click)="openPDFFile()">
+                {{ lblFileName }}
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="saveVehicle()">
+              Save Vehicle
+            </button>
+          </div>
+          <div class="col-md-4">
+            <button mat-raised-button color="primary" (click)="clearVehicle()">
+              Reset
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal footer -->
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">
+          Close
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- asset register print -->
+<div class="table-responsive" id="assetRegister">
+  <div class="row">
+    <div class="col-md-6 p-0 m-0">
+      <div class="row">
+        <div class="col-md-12">
+          <label class="h5Report">NATIONAL HIGHWAY AUTHORITY</label>
+        </div>
+      </div>
+      <!-- next row -->
+      <div class="row">
+        <div class="col-md-6 p-0 m-0">
+          <label class="h1Report">Asset Register</label>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6 text-right p-0 m-0">
+      <label class="h2Report">Muniff Ziauddin & Co.</label>
+    </div>
+  </div>
+
+  <!-- report header -->
+  <div class="">
+    <div class="row">
+      <div class="col-md-6">
+        <!-- <b class="label">Location Name: &nbsp;&nbsp;</b> -->
+        <label class="label pl-2 pr-2">{{ locationName }} - {{ officeName }}</label>
+      </div>
+      <!-- <div class="col-md-6 text-right">
+        <b>Office Title: &nbsp;&nbsp; </b>
+        <label class="label pl-2 pr-2">{{ officeName }}</label>
+      </div> -->
+    </div>
+  </div>
+  <!-- row -->
+  <div class="row"></div>
+  <table class="table table-striped reportTable">
+    <thead>
+      <tr>
+        <th class="text-center">#</th>
+        <th>Location</th>
+        <th>Office Type</th>
+        <th>Office</th>
+        <th>Tag</th>
+        <th>Accounts Category</th>
+        <th>Asset - Category</th>
+        <th>Asset - Description</th>
+        <th>Custodian</th>
+        <th>Asset-Location</th>
+        <th>Project</th>
+        <th>IPC-Ref</th>
+        <th>Cost</th>
+        <th>Purchase Date</th>
+        <th>Condition</th>
+        <th>Old Tag</th>
+        <th>Created By</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="
+          let item of assetDetailList
+            | search
+              : 'subLocationDescription,accountsCatagory,postName'
+              : tblSearch;
+          let i = index
+        ">
+        <td class="text-center">{{ i + 1 }}</td>
+        <td>{{ item.subLocationDescription }}</td>
+        <td>{{ item.officeTypeDescription }}</td>
+        <td>{{ item.officeDescription }}</td>
+        <td>{{ item.tag }}</td>
+        <td>{{ item.accountsCatagory }}</td>
+        <td>{{ item.assetCatDescription }}</td>
+        <th>{{ item.assetDescription }}</th>
+        <td>{{ item.postName }}</td>
+        <td>{{ item.assetLocation }}</td>
+        <td>{{ item.projectShortName }}</td>
+        <td>{{ item.ipcRef }}</td>
+        <td>{{ item.costAmount | number }}</td>
+        <td>{{ item.purchaseDate | date }}</td>
+        <td>{{ item.assetCondition }}</td>
+        <td>{{ item.prviousTag }}</td>
+        <td>{{ item.createdBy }}</td>
+      </tr>
+      <tr *ngIf="assetDetailList.length == 0">
+        <td>No Record Found</td>
+      </tr>
+    </tbody>
+  </table>
+  <div class="divFooter">
+    <div class="row">
+      <div class="col-md-12 text-center border-top pt-2">
+        <label class="label">{{ locationName }} - {{ officeName }}</label>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- transfers Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="assetTransferModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Asset Transfer</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <mat-radio-group aria-label="Transfer Mode" [(ngModel)]="rdbTransMode" (change)="getTransLocData()">
+              <mat-radio-button color="primary" value="Sender">Sender</mat-radio-button>&nbsp;&nbsp;
+              <mat-radio-button color="primary" value="Receiver">Receiver</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="col-md-6 text-right" *ngIf="assetID != '' && lblTransferID != ''">
+            <button mat-raised-button color="primary" (click)="clearTransferDetail('New')">
+              New
+            </button>
+          </div>
+        </div>
+        <hr />
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-radio-group aria-label="Transfer Type" [(ngModel)]="rdbTransType">
+              <mat-radio-button color="primary" value="Internal">Internal Transfer</mat-radio-button>&nbsp;&nbsp;
+              <mat-radio-button color="primary" value="External">External Transfer</mat-radio-button>
+            </mat-radio-group>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Project Title</mat-label>
+              <mat-select [(ngModel)]="cmbTransferProject" (ngModelChange)="filterTansTable(cmbTransferProject)"
+                [disabled]="disableProject">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchTransProject" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of transferProjectList
+                      | search: 'projectName':searchTransProject
+                  " [value]="item.projectID">
+                  {{ item.projectName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-6">
+            <fieldset class="scheduler-border">
+              <legend class="scheduler-border text-skyblue">Sender Info</legend>
+
+              <!-- <div class="row">
+              <div class="col-md-12 border-bottom">
+                <h4> Sender Info</h4>
+              </div>
+            </div> -->
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Province - Location - Sub Location</mat-label>
+                    <mat-select [(ngModel)]="cmbSendTransLocation" (ngModelChange)="showSendTransOfcType()"
+                      [disabled]="disableFields || disableSenderTrans">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchSendTransLocation" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of locSendTransList
+                            | search
+                              : 'subLocationDescription, mainLocationDescription, officeTypeDescription, provinceName'
+                              : searchSendTransLocation
+                        " [value]="item.subLocID" [disabled]="item.isActivated == 0">
+                        <div class="row d-flex border-bottom">
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.subLocationDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.officeTypeDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.mainLocationDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.provinceName }}
+                          </div>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Office Type</mat-label>
+                    <mat-select [(ngModel)]="cmbSendTransOfcType" (ngModelChange)="
+                        getSendTransWingSection(cmbSendTransOfcType)
+                      " [disabled]="disableOfcType">
+                      <mat-option *ngFor="let item of ofcTypeSendTransList" [value]="item.officeTypeID">
+                        {{ item.officeTypeDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Wing - Section</mat-label>
+                    <mat-select [(ngModel)]="cmbSendTransWngSection" [disabled]="disableFields">
+                      <!-- <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchSection" /> -->
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchSendTransSection" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of wngSectSendTransList
+                            | search: 'officeDescription':searchSendTransSection
+                        " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+                        {{ item.officeDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Tranfered By: Custody Name</mat-label>
+                    <mat-select [(ngModel)]="cmbTransByPost" (ngModelChange)="getTransByPost()">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchPostBy" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of transferByList
+                            | search: 'postName,companyName':searchPostBy
+                        " [value]="item.postID" [disabled]="item.isActivated == 0">
+                        {{ item.postName }} - {{ item.companyName }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  Company Name: <b>{{ lblTransByComp }}</b>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <div class="col-md-6">
+            <fieldset class="scheduler-border">
+              <legend class="scheduler-border text-skyblue">
+                Receiver Info
+              </legend>
+              <!--next row-->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Province - Location - Sub Location</mat-label>
+                    <mat-select [(ngModel)]="cmbTransLocation" (ngModelChange)="showTransOfcType()"
+                      [disabled]="disableFields || disableReceiveTrans">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchTransLocation" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of locTransList
+                            | search
+                              : 'subLocationDescription, mainLocationDescription, officeTypeDescription, provinceName'
+                              : searchTransLocation
+                        " [value]="item.subLocID" [disabled]="item.isActivated == 0">
+                        <div class="row d-flex border-bottom">
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.subLocationDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.officeTypeDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.mainLocationDescription }}
+                          </div>
+                          <div class="col-md-3 col-sm-12">
+                            {{ item.provinceName }}
+                          </div>
+                        </div>
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Office Type</mat-label>
+                    <mat-select [(ngModel)]="cmbTransOfcType" (ngModelChange)="getTransWingSection(cmbTransOfcType)"
+                      [disabled]="disableOfcType">
+                      <mat-option *ngFor="let item of ofcTypeTransList" [value]="item.officeTypeID">
+                        {{ item.officeTypeDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Wing - Section</mat-label>
+                    <mat-select [(ngModel)]="cmbTransWngSection" [disabled]="disableFields">
+                      <!-- <input type="text" class="form-control" placeholder="Search..." [(ngModel)]="searchSection" /> -->
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchTransSection" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of wngSectTransList
+                            | search: 'officeDescription':searchTransSection
+                        " [value]="item.officeSecID" [disabled]="item.isActivated == 0">
+                        {{ item.officeDescription }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  <mat-form-field class="w-100">
+                    <mat-label>Tranfered To: Custody Name</mat-label>
+                    <mat-select [(ngModel)]="cmbTransToPost" (ngModelChange)="getTransToPost()">
+                      <mat-option>
+                        <ngx-mat-select-search [(ngModel)]="searchPostTo" [placeholderLabel]="'Search...'"
+                          [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                      </mat-option>
+
+                      <mat-option *ngFor="
+                          let item of transferToList
+                            | search: 'postName,companyName':searchPostTo
+                        " [value]="item.postID" [disabled]="item.isActivated == 0">
+                        {{ item.postName }} - {{ item.companyName }}
+                      </mat-option>
+                    </mat-select>
+                  </mat-form-field>
+                </div>
+              </div>
+              <!-- next row -->
+              <div class="row">
+                <div class="col-md-12">
+                  Company Name : <b>{{ lblTransToComp }}</b>
+                </div>
+              </div>
+            </fieldset>
+          </div>
+        </div>
+
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Description/ Remarks</mat-label>
+              <textarea matInput [(ngModel)]="txtTransDesc"></textarea>
+            </mat-form-field>
+          </div>
+        </div>
+        <hr />
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Transfer Date</mat-label>
+              <input matInput [matDatepicker]="picker" [(ngModel)]="dtpTransferDt" />
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-12 pt-2">
+            <div class="custom-file">
+              <input type="file" class="custom-file-input" [(ngModel)]="imgFileTrans"
+                (change)="onTransFileSelected($event)" />
+              <label class="custom-file-label" for="customFile">Choose Handing Taking File</label>
+            </div>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12 pt-2 text-center">
+            <div class="text-center">
+              <img [src]="imageTransUrl" class="rounded" width="115" height="115" id="myImg"
+                (click)="zoomTransImage()" />
+            </div>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12 inline-block">
+            <button mat-raised-button color="warn" (click)="saveTransfer()">
+              Save Transfers Detail
+            </button>
+            <button mat-raised-button color="primary" (click)="clearTransferDetail('Reset')">
+              Reset
+            </button>
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>search</mat-label>
+              <span matPrefix><span class="fa fa-search"></span> &nbsp;</span>
+              <input matInput [(ngModel)]="tblSearchTrans" />
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Transfer Type</th>
+                <th>From</th>
+                <th>Location</th>
+                <th>Office Type</th>
+                <th>To</th>
+                <th>Date</th>
+                <th class="text-center">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="
+                  let item of transferList
+                    | search
+                      : 'transferType,subLocationDescription,officeTypeDescription,receiveBy,transfee,dateofTransfer'
+                      : tblSearchTrans;
+                  let i = index
+                ">
+                <td class="text-center">{{ i + 1 }}</td>
+                <td>{{ item.transferType }}</td>
+                <td>{{ item.transfee }}</td>
+                <td>{{ item.subLocationDescription }}</td>
+                <td>{{ item.officeTypeDescription }}</td>
+                <td>{{ item.receiveBy }}</td>
+                <td>{{ item.dateofTransfer | date }}</td>
+                <td class="inline-block text-center">
+                  <span class="fa fa-info-circle cursorPointer pr-3" (click)="getTransferDetail(item)"></span>
+                  <span class="fa fa-edit cursorPointer pr-3 text-primary"
+                    (click)="genPin(item, 'editTransfer')"></span>
+                  <span class="fa fa-trash-o cursorPointer text-danger pr-3"
+                    (click)="genPin(item, 'deleteTransfer')"></span>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- transfers detail Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="assetTransferDetailModal">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Asset Transfer Detail</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <!-- table -->
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th class="text-center">Action</th>
+                <th>Tag</th>
+                <th>Location</th>
+                <th>Office Type</th>
+                <th>Section</th>
+                <th>Asset Category</th>
+                <th>Asset Description</th>
+                <th>Custody Name</th>
+                <th>Transfer By</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let item of transDetailList">
+                <td class="inline-block text-center">
+                  <span class="fa fa-trash-o cursorPointer text-danger pr-3"
+                    (click)="genPin(item, 'deleteTransferDetail')"></span>
+                </td>
+                <td>{{ item.tag }}</td>
+                <td>{{ item.subLocationDescription }}</td>
+                <td>{{ item.officeTypeDescription }}</td>
+                <td>{{ item.officeDescription }}</td>
+                <td>{{ item.assetCatDescription }}</td>
+                <td>{{ item.assetDescription }}</td>
+                <td>{{ item.postName }}</td>
+                <td>{{ item.transferby }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Generate Pin Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="genPinModal">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Enter Pin</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Enter Pin</mat-label>
+              <input matInput type="password" maxlength="4" (keydown)="onKeyPress($event); getKeyPressed($event)"
+                [(ngModel)]="txtPin" />
+            </mat-form-field>
+          </div>
+        </div>
+        <div class="row">
+          <!-- <div class="col-md-4">
+            <button mat-raised-button color="warn" (click)="resetPin()">
+              Generate Pin
+            </button>
+          </div> -->
+          <div class="col-md-4">
+            <button mat-raised-button color="primary" (click)="allowUpdation()">
+              OK
+            </button>
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Start modal window for bigger image -->
+<div id="myModal" class="modal animate__animated animate__bounceIn">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Expanded Image</h3>
+        <button type="button" class="close" (click)="closeModal()" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <img class="modal-content" id="img01" />
+      </div>
+    </div>
+  </div>
+  <!-- The Close Button -->
+  <!-- <span class="close" (click)="closeModal()">&times;</span> -->
+
+  <!-- Modal Content (The Image) -->
+  <!-- <img class="modal-content" id="img01" /> -->
+
+  <!-- Modal Caption (Image Text) -->
+</div>
+<!-- End modal window for bigger image -->
+
+<!-- Transfers Report Modal Windw -->
+<!-- The Modal -->
+<div class="modal animate__animated animate__bounceIn" id="transfersReportModal">
+  <div class="modal-dialog modal-xl">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h3 class="modal-title">Transfers Report</h3>
+        <button type="button" class="close" data-dismiss="modal">
+          &times;
+        </button>
+      </div>
+
+      <!-- Modal body -->
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Province - Location - Sub Location</mat-label>
+              <mat-select [(ngModel)]="cmbSearchTransferLocation" (ngModelChange)="
+                  showSearchTransferOfficeType(); searchTransferTableData()
+                ">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="advSearchLocation" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+
+                <mat-option *ngFor="
+                    let item of locList
+                      | search
+                        : 'subLocationDescription,officeTypeDescription, mainLocationDescription, provinceName'
+                        : advSearchLocation
+                  " [value]="item.subLocID" [disabled]="item.isActivated == 0 || item.isCompleted == 1">
+                  <table class="table">
+                    <tr class="d-flex">
+                      <td class="col-3">{{ item.subLocationDescription }}</td>
+                      <td class="col-3">{{ item.officeTypeDescription }}</td>
+                      <td class="col-3">{{ item.mainLocationDescription }}</td>
+                      <td class="col-3">{{ item.provinceName }}</td>
+                    </tr>
+                  </table>
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field class="w-100">
+              <mat-label>Office Type</mat-label>
+              <mat-select [(ngModel)]="cmbSearchTransferOfcType" [disabled]="disableOfcType">
+                <mat-option *ngFor="let item of ofcTypeList" [value]="item.officeTypeID">
+                  {{ item.officeTypeDescription }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+        <!-- next row -->
+        <div class="row">
+          <div class="col-md-12">
+            <mat-form-field color="warn" class="w-100">
+              <mat-label>Select Project</mat-label>
+              <mat-select [(ngModel)]="cmbTransProject" (ngModelChange)="getTransIPC()">
+                <mat-option>
+                  <ngx-mat-select-search [(ngModel)]="searchTransRptProject" [placeholderLabel]="'Search...'"
+                    [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                </mat-option>
+                <mat-option *ngFor="
+                    let item of projectList
+                      | search: 'projectName':searchTransRptProject
+                  " [value]="item.projectID">
+                  {{ item.projectName }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="row">
+          <div class="col-md-2">
+            <label><b>Report Mode</b>: &nbsp;&nbsp;</label>
+          </div>
+          <div class="col-md-3">
+            <mat-radio-group [(ngModel)]="rdbTransRptMode" aria-label="Select an option">
+              <mat-radio-button value="1" class="pr-2">Sender</mat-radio-button>
+              <mat-radio-button value="2">Receiver</mat-radio-button>
+            </mat-radio-group>
+          </div>
+          <div class="coll-md-3 inline-block">
+            <button class="mr-2" mat-raised-button color="primary" (click)="transfersReport(rdbTransRptMode)">
+              Report
+            </button>
+            <button mat-raised-button color="primary" (click)="printReport('#assetTransfersReport')">
+              <span class="fa fa-print"></span>
+            </button>
+          </div>
+        </div>
+
+        <!-- transfers report -->
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive" id="assetTransfersReport">
+              <div class="row">
+                <div class="col-md-6">
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label class="h5Report">NATIONAL HIGHWAY AUTHORITY</label>
+                    </div>
+                  </div>
+                  <!-- next row -->
+                  <div class="row">
+                    <div class="col-md-12">
+                      <label class="h1Report">Asset Transfers Report</label>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-md-6 text-right">
+                  <label class="h2Report">Muniff Ziauddin & Co.</label>
+                </div>
+              </div>
+
+              <!-- report header -->
+              <div class="">
+                <div class="row">
+                  <div class="col-md-6">
+                    <!-- <b class="label">Location Name: &nbsp;&nbsp;</b> -->
+                    <label class="label pl-2 pr-2">{{ locationName }} - {{ officeName }}</label>
+                  </div>
+                </div>
+              </div>
+              <!-- Table -->
+              <table class="table table-striped">
+                <thead>
+                  <tr>
+                    <th class="text-center" rowspan="2">#</th>
+                    <th class="printNone" rowspan="2">Action</th>
+                    <th rowspan="2">IPC Reference</th>
+                    <th rowspan="2">Project Name</th>
+                    <th rowspan="2">Tag</th>
+                    <th rowspan="2">Asset Description</th>
+                    <th class="text-center" colspan="4">Sender Info</th>
+                    <th class="text-center" colspan="4">Receiver Info</th>
+                  </tr>
+                  <tr>
+                    <th>Location</th>
+                    <th>Office</th>
+                    <th>Section</th>
+                    <th>Post Name</th>
+                    <th>Location</th>
+                    <th>Office</th>
+                    <th>Section</th>
+                    <th>Post Name</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let item of assetTransfersRptList; let i = index">
+                    <td class="text-center">{{ i + 1 }}</td>
+                    <td class="printNone">
+                      <span class="fa fa-edit cursorPointer pr-3 text-primary"
+                        *ngIf="item.projectID != 0 && item.showBtn == undefined" (click)="editIPC(item)"></span>
+                      <span class="fa fa-plus-circle cursorPointer pr-3 text-primary"
+                        *ngIf="item.projectID != 0 && item.showBtn == 1" (click)="saveIPC(item)"></span>
+                    </td>
+                    <td class="printNone" *ngIf="item.showBtn == 1">
+                      <mat-form-field color="warn" class="w-100">
+                        <mat-label>IPC Reference</mat-label>
+                        <mat-select [(ngModel)]="cmbTransRptRef">
+                          <mat-option>
+                            <ngx-mat-select-search [(ngModel)]="searchTransRptRef" [placeholderLabel]="'Search...'"
+                              [noEntriesFoundLabel]="'Not found'" name="search"></ngx-mat-select-search>
+                          </mat-option>
+                          <mat-option *ngFor="
+                              let item of transRefList
+                                | search: 'ipcRefDescription':searchTransRptRef
+                            " [value]="item.ipcRefID">
+                            {{ item.ipcRefDescription }}
+                          </mat-option>
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+                    <td *ngIf="item.showBtn == undefined">
+                      {{ item.iPCRef }}
+                    </td>
+                    <td>{{ item.projectName }}</td>
+                    <td>{{ item.tag }}</td>
+                    <td>{{ item.tSubLocationDescription }}</td>
+                    <td>{{ item.tOfficeTypeDescription }}</td>
+                    <td>{{ item.tOfficeDescription }}</td>
+                    <td>{{ item.tPostName }}</td>
+                    <td>{{ item.rSubLocationDescription }}</td>
+                    <td>{{ item.rOfficeTypeDescription }}</td>
+                    <td>{{ item.rOfficeDescription }}</td>
+                    <td>{{ item.rPostName }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <!-- end report -->
+          </div>
+        </div>
+
+        <!-- Modal footer -->
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-dismiss="modal">
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
